@@ -1,0 +1,125 @@
+"use strict";
+
+const configure = function () {
+  const path = require('path'),
+    fs = require('fs-extra'),
+    chalk = require('chalk'),
+    customize = require('kml-customize'),
+    PROJECT_NAME = 'startup';
+
+  let BASE_URL = `http://dev.kmlab.com/${PROJECT_NAME}/`;
+  let host = '58.246.253.126';
+  let port = '5433';
+  let database = 'startup';
+  let username = 'pms';
+  let password = 'pms';
+  let redisHost = '192.168.1.90';
+  let redisPort = 6379;
+  let redisDB = 0;
+  let redisPass = 'itomix';
+  let api_host = 'http://localhost:3800/';
+  let wx_app = 'itomix';
+
+  const root = process.cwd(),
+    server_path = 'server', //后端主目录
+    init_path = 'init', //后端初始化目录
+    lib_path = 'lib', //后端自定义库
+    modules_path = 'modules', //后端模块定义
+    routers_path = 'routers', //后端路由定义
+    entities_path = 'entities', //实体类定义
+    public_path = 'public', //静态资源目录
+    logs_path = 'logs', //日志目录
+    views_path = 'views', //前端视图输出
+    mock_path = 'mock' //mock数据目录
+    ;
+
+  let config = {
+    //sequelize数据库连接定义
+    sequelize: {
+      database: database,
+      username: username,
+      password: password,
+      options: {
+        timezone: '+08:00', //保证时区正确
+        host: host,
+        port: port,
+        dialect: 'postgres',
+        //storage: 'path/to/database.sqlite', //SQLite only
+        pool: {
+          max: 5,
+          min: 0,
+          idle: 10000
+        }
+      }
+    },
+    redis: {
+      host: redisHost,
+      port: redisPort,
+      db: redisDB,
+      pass: redisPass
+    },
+
+    //系统目录定义
+    system: {
+      bind_port: 8888, //绑定端口
+      base_url: BASE_URL, //主URL
+      project_name: PROJECT_NAME, //项目名
+      additional: '_action', //路由后缀
+      mock_file: '.js', //对应url请求时获取mock数据类型的文件后缀
+      mock_mode: process.env.MOCK_MODE||false, //mock模式, auto=自动|true|false
+      real_mode: /^product|real$/.test(process.env.NODE_ENV) //连接真实生产环境
+    },
+
+    //系统路径
+    path: {
+      ROUTERS_PATH: path.resolve(root, server_path, routers_path), //后端路由定义
+      ENTITIES_PATH: path.resolve(root, server_path, entities_path), //实体类定义
+      INIT_PATH: path.resolve(root, server_path, init_path), //后端初始化目录,固定
+      LIB_PATH: path.resolve(root, server_path, lib_path), //后端自定义库,固定
+      MODULES_PATH: path.resolve(root, server_path, modules_path), //后端模块定义
+      MOCK_PATH: path.resolve(root, mock_path), ///mock数据目录
+      PUBLIC_PATH: path.resolve(root, public_path), //静态资源目录
+      VIEWS_PATH: path.resolve(root, views_path), //前端视图输出
+      LOGS_PATH: path.resolve(root, logs_path) //日志目录
+    },
+
+    //文件上传目录定义
+    upload: {
+      root: `/opt/${PROJECT_NAME}-img/`,
+      base_url: null,
+      appimg: 'appimg/',
+      qrimg: 'qrimg/',
+      wximg: 'wximg/'
+    },
+
+    //微信定义
+    wechat: {
+      api_host: api_host,
+      wx_app: wx_app
+    },
+
+    //内部应用接口验证定义
+    app_config: {
+      api_token: ''
+    }
+  };
+
+  //创建目录
+  let config_path = config.path;
+  for(let p in config_path) {
+    if (config_path.hasOwnProperty(p)) {
+      let path = config_path[p];
+      fs.ensureDir(path, function (err, added_root) {
+        if (err) {
+          return console.error(chalk.red('create folder error'), chalk.red(JSON.stringify(err, null, 4)));
+        }
+        added_root && console.log(chalk.green(path + ' is created'));
+      });
+    }
+  }
+  return customize(config);
+}();
+
+//绑定到全局变量
+global.config = global.config = configure;
+module.exports = configure;
