@@ -73,12 +73,15 @@ global.sequelize = global.sequelize = function () {
     const entitis_init = require('./entities-init');
     global.po = entitis_init(sequelize);
 
-    //初始化db
-    logger.info('sync db');
-    sequelize.sync().then(function () {
+    if (config_sequelize.syncDB) {
+        //同步表结构db
+        logger.info('sync db');
+        sequelize.sync().then(function () {
+            logger.info('db init finished!');
+        });
+    } else {
         logger.info('db init finished!');
-        po.buildAssociations();
-    });
+    }
 
     return sequelize;
 }();

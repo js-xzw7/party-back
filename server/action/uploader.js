@@ -44,8 +44,6 @@ function Uploader (routerPath) {
     //定义上传文件的访问路径
     router.use(`/${routerPath}`, express.static(DEST_DIR));
 
-    // const [File] = po.import(db, ['file']);
-
     //定义上传文件输出结构
     const FILE_ATTRIBUTES = ['file_id', 'plat_id', 'name', 'type', 'content_type', 'name', 'size', 'file_path', 'orig_path', 'hash_value', 'url', 'thumbnail'];
     const FILE_GET_ATTRIBUTES = ['file_id', 'plat_id', 'name', 'type', 'content_type', 'name', 'size', 'hash_value', 'url', 'thumbnail'];
@@ -188,6 +186,8 @@ function Uploader (routerPath) {
 
             //输出结果
             // todo 存储文件信息
+            // const [File] = po.import(db, ['file']);
+
             res.json(Result.Ok('success', {files: uploaded_files}));
             return null;
 
@@ -199,11 +199,12 @@ function Uploader (routerPath) {
     function getFileByHash (hash) {
         //查询原有文件的hash值
         let hash_where = {hash_value: hash};
-        // return File.findOne({
-        //     attributes: FILE_GET_ATTRIBUTES,
-        //     where: hash_where,
-        //     sort: [['create_date', 'desc']]
-        // })
+        const [File] = po.import(db, ['file']);
+        return File.findOne({
+            attributes: FILE_GET_ATTRIBUTES,
+            where: hash_where,
+            sort: [['create_date', 'desc']]
+        })
     }
 
     function findByHash (req, res, next) {

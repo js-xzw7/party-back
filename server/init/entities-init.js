@@ -21,12 +21,8 @@ module.exports = function (sequelize) {
     //加载所有的实体
     print_entities(po.import(sequelize));
 
-    /**
-     * 创建关联关系
-     */
-    po.buildAssociations = function () {
-        //定义实体间的关联关系
-    };
+
+    // todo 定义实体间的弱关联关系 {constraints: false}，或者在include时定义{association}
 
     return po;
 };
