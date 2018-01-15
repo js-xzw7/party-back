@@ -1,6 +1,6 @@
 {
   "name": "express-server",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -10,12 +10,13 @@
   "author": "lintry <shenlin00@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "body-parser": "^1.17.2",
-    "connect-redis": "^3.3.0",
+    "body-parser": "^1.18.2",
+    "connect-redis": "^3.3.3",
     "cookie-parser": "^1.4.3",
-    "express": "^4.15.3",
-    "express-session": "^1.15.3",
-    "fs-extra": "^3.0.1",
+    "express": "^4.16.2",
+    "express-session": "^1.15.6",
+    "formidable": "^1.1.1",
+    "fs-extra": "^5.0.0",
     "kml-customize": "git+ssh://git@gitlab.kmlab.com:comm/customize.git#1.0.0",
     "kml-express-stage-lib": "git+ssh://git@gitlab.kmlab.com:comm/express-stage-lib.git#1.1.0",
     "kml-express-stage-mw": "git+ssh://git@gitlab.kmlab.com:comm/express-stage-mw.git#1.0.2",
@@ -24,12 +25,13 @@
     "kml-po-abstract": "git+ssh://git@gitlab.kmlab.com:entities/po-abstract.git#1.0.3",
     "kml-si-client": "git+ssh://git@gitlab.kmlab.com:comm/si-client.git#1.0.5",
     "kml-si-oauth-sdk": "git+ssh://git@gitlab.kmlab.com:saas/oauth-sdk.git#1.2.0",
-    "log4js": "^1.1.1",
-    "method-override": "^2.3.9",
-    "pg": "^6.2.3",
-    "redis": "^2.7.1",
-    "request-ip": "^2.0.1",
-    "sequelize": "^3.30.4",
-    "shelljs": "^0.7.7"
+    "log4js": "^2.4.1",
+    "method-override": "^2.3.10",
+    "mime": "^2.2.0",
+    "pg": "^7.4.1",
+    "redis": "^2.8.0",
+    "request-ip": "^2.0.2",
+    "sequelize": "^4.31.2",
+    "shelljs": "^0.8.0"
   }
 }
