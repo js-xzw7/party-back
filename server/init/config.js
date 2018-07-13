@@ -7,18 +7,16 @@ const configure = function () {
         customize = require('kml-customize'),
         PROJECT_NAME = 'startup';
 
-    let BASE_URL = `http://dev.kmlab.com/${PROJECT_NAME}/`;
+    let BASE_URL = `https://dev.kmlab.com/${PROJECT_NAME}/`;
     let host = '58.246.253.126';
     let port = '5433';
-    let database = 'startup';
+    let database = 'jhsaas';
     let username = 'pms';
     let password = 'pms';
     let redisHost = '192.168.1.90';
     let redisPort = 6379;
     let redisDB = 0;
     let redisPass = 'itomix';
-    let api_host = 'http://localhost:3800/';
-    let wx_app = 'itomix';
 
     const root = process.cwd(),
         server_path = 'server', //后端主目录
@@ -95,14 +93,74 @@ const configure = function () {
 
         //微信定义
         wechat: {
-            api_host: api_host,
-            wx_app: wx_app
+            api_host: 'http://localhost:3800',
+            wx_app: 'itomix',
+            api_token: '',
+            authorizer_appid: ''
         },
 
         //内部应用接口验证定义
         app_config: {
             api_token: ''
-        }
+        },
+
+        //枚举参数
+        ENUM: {
+            DEFAULT: {
+                USERTYPE: 'P',
+                USERPASSWORD: '8888',
+                USERROLE: {
+                    ADMIN: 'ADMIN',
+                    USER: 'USER'
+                },
+                DUTY: '管理员',
+                PLATTYPE: 'P',
+                DUTYNAME: '管理员',
+                CORPTYPE: 'P',
+                DUTYTYPE: 'P'
+            },
+            TYPE: {
+                APPLY: 'APPLY',
+                ENABLE: 'ENABLE',
+                FAIL: 'FAIL',
+                IGNORE: 'IGNORE',
+                DISABLE: 'DISABLE',
+                USE: 'USE',
+                USER: 'USER',
+                AUTO: 'AUTO',
+                DEFAULT: 'DEFAULT'
+            },
+            STATE: {
+                SUCCESS: 'SUCCESS',
+                OK: 'OK',
+                ERROR: 'ERROR'
+            },
+            PLATTYPE: {
+                P: 'P',
+                B: 'B'
+            },
+            LIMIT: 20,
+            OFFSET: 0,
+            DEFAULT_LIMIT: 999,
+            DEFAULT_PARAMS_ARRAY: ['create_id', 'create_name', 'create_code', 'create_date',
+                'optr_id', 'optr_name', 'optr_code', 'optr_date'],
+            STATUS_ARRAY: ['APPLY', 'ENABLE', 'DISABLE', 'Y', 'N', 'PUBLIC', 'PRIVATE']
+        },
+
+        // 微信跳转页
+        mpurl_map: {
+            index: 'index.html'
+        },
+
+        // 缓存设定
+        cache: {
+            ttl: {
+                PIN_TIMEOUT: 300, // 5分钟的验证码超时时间
+                AGAIN_PIN: 240, // 4分钟再次发送验证码
+                EXPRESS_TTL: 86400, // 1 day
+                SESSION_TTL: 86400 // 1 day
+            }
+        },
     };
 
     //创建目录

@@ -1,7 +1,8 @@
 "use strict";
 const start_time = Date.now();
 const config = require('./init/config'),
-    ApiAction = require('./action/api-action'),
+    MpApiAction = require('./action/mpapi-action'),
+    BzApiAction = require('./action/bzapi-action'),
     Uploader = require('./action/uploader');
 
 // 定义参数
@@ -11,8 +12,8 @@ const BIND_PORT = config.system.bind_port;
 const logger = require('./init/log4js-init').system;
 
 // 定义db
-// logger.info('init db');
-// require('./init/sequelize-init');
+logger.info('init db');
+require('./init/sequelize-init');
 
 
 // 定义express初始化
@@ -26,7 +27,13 @@ let list = routers_path.list();
 
 list.forEach(function (router_path) {
     let pattern = `/${router_path}`;
-    app.use(pattern, new ApiAction(router_path));
+    let api_action;
+    if (/[tc]/.test(router_path)) {
+        api_action = new MpApiAction(router_path)
+    } else {
+        api_action = new BzApiAction(router_path)
+    }
+    app.use(pattern, api_action);
 });
 
 // 定义文件上传

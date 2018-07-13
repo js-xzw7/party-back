@@ -13,11 +13,10 @@ module.exports = function() {
     bodyParser = require('body-parser'),
     methodOverride = require('method-override'),
     original_url_mw = require('kml-original-url-mw'),
-    path = require('path'),
     config = require('./config'),
     config_path = config.path,
     logger = require('./log4js-init').system;
-  
+
   // 定义express body 中间件
   app.use(bodyParser.urlencoded({ extended: false }));
   app.use(bodyParser.json());
@@ -52,7 +51,7 @@ module.exports = function() {
           host: cfg_redis.host,
           port: cfg_redis.port,
           pass: cfg_redis.pass,
-          ttl: 2592000, //expired in 30 days
+          ttl: config.cache.ttl.SESSION_TTL,
           db: cfg_redis.db,
           retry_unfulfilled_commands: true
         })
