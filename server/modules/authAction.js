@@ -33,7 +33,6 @@ module.exports = function (user_type, dbo) {
      * @param req
      * @param res
      * @param db
-     * @deprecated
      * @return {*}
      * 仅供调试用
      */

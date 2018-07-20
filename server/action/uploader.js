@@ -32,7 +32,6 @@ function Uploader (routerPath) {
 
     const
         DEST_DIR = path.resolve(UPLOAD_OPTION.root, routerPath),
-        IMAGE_URL = (UPLOAD_OPTION.base_url || '/') + routerPath + '/',
         THUMB_WIDTH = 240,
         Default_Plat = 'saas';
 
@@ -44,6 +43,8 @@ function Uploader (routerPath) {
     //定义上传文件的访问路径
     router.use(`/${routerPath}`, express.static(DEST_DIR));
 
+    const [File] = po.import(db, ['file']);
+
     //定义上传文件输出结构
     const FILE_ATTRIBUTES = ['file_id', 'plat_id', 'name', 'type', 'content_type', 'name', 'size', 'file_path', 'orig_path', 'hash_value', 'url', 'thumbnail'];
     const FILE_GET_ATTRIBUTES = ['file_id', 'plat_id', 'name', 'type', 'content_type', 'name', 'size', 'hash_value', 'url', 'thumbnail'];
@@ -53,6 +54,8 @@ function Uploader (routerPath) {
     fs.ensureDirSync(DEST_DIR);
 
     function upload (req, res, next) {
+        const IMAGE_URL = (UPLOAD_OPTION.base_url || req.original_uri.base) + routerPath + '/';
+
         /**
          * 创建缩略图
          * @param gm_object gm对象,可以在此前对图片做好预处理
@@ -78,6 +81,17 @@ function Uploader (routerPath) {
                             err ? logger.error(err, uploaded_file) : logger.debug('image saved to', uploaded_file);
                             //move file to dest_orig
                             fs.renameSync(file_orig.path, dest_orig);
+
+                            //处理结果
+                            File.create(uploaded_file)
+                                .then(function (files) {
+                                    logger.debug('file saved into db', files);
+                                })
+
+                            //输出结果
+                            res.json(Result.Ok('success', {files: uploaded_file}));
+                            return null;
+
                         });
                     }
                 })
@@ -93,6 +107,11 @@ function Uploader (routerPath) {
         const rename = function (file_orig, uploaded_file) {
             let dest_orig = uploaded_file.file_path; //原始图片
             fs.renameSync(file_orig.path, dest_orig);
+            //处理结果
+            File.create(uploaded_file)
+                .then(function (files) {
+                    logger.debug('file saved into db', files);
+                })
         };
 
         const upload_date = moment().format('YYYY/MM/DD');
@@ -111,7 +130,6 @@ function Uploader (routerPath) {
         // 处理上传文件
         form.parse(req, function (err, fields, files) {
             let uploaded_files = [];
-            console.log('upload', fields, files)
             if (files) {
                 for (let key in files) {
                     if (files.hasOwnProperty(key)) {
@@ -127,7 +145,6 @@ function Uploader (routerPath) {
                                     res.json(Result.Error('上传文件格式错误', file.type));
                                     return null;
                                 }
-
 
                                 const plat_id = req.session.active_user && req.session.active_user.plat_id
                                     ? req.session.active_user.plat_id : Default_Plat;
@@ -149,7 +166,7 @@ function Uploader (routerPath) {
                                         file_path: dest_file,
                                         thumb_path: dest_thumb,
                                         orig_path: dest_orig,
-                                        hash_value: file.hash,
+                                    hash_value: String(file.hash).toLowerCase(),
                                         url: IMAGE_URL + upload_date + '/' + file_name,
                                         params: fields,
                                         key: key,
@@ -186,7 +203,6 @@ function Uploader (routerPath) {
 
             //输出结果
             // todo 存储文件信息
-            // const [File] = po.import(db, ['file']);
 
             res.json(Result.Ok('success', {files: uploaded_files}));
             return null;
@@ -199,7 +215,6 @@ function Uploader (routerPath) {
     function getFileByHash (hash) {
         //查询原有文件的hash值
         let hash_where = {hash_value: hash};
-        const [File] = po.import(db, ['file']);
         return File.findOne({
             attributes: FILE_GET_ATTRIBUTES,
             where: hash_where,
