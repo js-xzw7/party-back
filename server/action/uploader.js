@@ -39,6 +39,7 @@ function Uploader (routerPath) {
     mime.define({'image/jpg': ['jpg']}, true); //修复微信上传的错误
     mime.define({'image/jpeg': ['jpg', 'jpeg', 'jpe']}, true); //调整常用的jpg后缀
     mime.define({'video/quicktime': ['mov', 'qt']}, true); //调整常用的quicktime视频后缀
+    mime.define({'audio/mpeg': ["mp3","mpga","mp2","mp2a","m2a","m3a"]}, true); //调整常用的mp3音频后缀
 
     //定义上传文件的访问路径
     router.use(`/${routerPath}`, express.static(DEST_DIR));

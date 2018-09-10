@@ -99,6 +99,19 @@ const configure = function () {
             authorizer_appid: ''
         },
 
+        //微信小程序
+        weapp: {
+            api_host: 'http://localhost:3800',
+            api_token: '',
+            authorizer_appid: '',
+            watermark_ttl: 7200, //敏感数据有效期(s)
+            token_prefix: 'WXID', //token前缀
+            token_ttl: 36000, //token有效期(s)
+            share_prefix: 'WXSHARE', //分享前缀
+            share_ttl: 3600 * 48, //分享有效期(s)
+            strict_mode: true
+        },
+
         //内部应用接口验证定义
         app_config: {
             api_token: ''
