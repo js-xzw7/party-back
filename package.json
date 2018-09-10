@@ -27,6 +27,8 @@
     "kml-po-abstract": "git+ssh://git@gitlab.kmlab.com/entities/po-abstract.git#1.1.1",
     "kml-si-client": "git+ssh://git@gitlab.kmlab.com/comm/si-client.git#1.1.0",
     "kml-si-oauth-sdk": "git+ssh://git@gitlab.kmlab.com:saas/oauth-sdk.git#1.2.0",
+    "kml-weapp-lib": "git+ssh://git@gitlab.kmlab.com/comm/weapp-lib.git#1.0.0",
+    "kml-weapp-mw": "git+ssh://git@gitlab.kmlab.com/comm/weapp-mw.git#1.2.1",
     "log4js": "^2.11.0",
     "method-override": "^3.0.0",
     "mime": "^2.3.1",

@@ -30,6 +30,8 @@ list.forEach(function (router_path) {
     let api_action;
     if (/[tc]/.test(router_path)) {
         api_action = new MpApiAction(router_path)
+    } else if(/w/.test(router_path)) {
+        api_action = new WeApiAction((router_path))
     } else {
         api_action = new BzApiAction(router_path)
     }
