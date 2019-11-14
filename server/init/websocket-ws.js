@@ -79,8 +79,8 @@ wss.on('connection', function (ws) {
                 console.log(spell_list);
 
                 //获取当前ws对应的udp传输ip 及端口
-                let req1 = { "query": { "ip": ip, "type": "ws" } };
-                let map_info = await cfig.findByIpMapGet(req1);
+                let new_req = { "query": { "ip": ip, "type": "ws" } };
+                let map_info = await cfig.findByIpMapGet(new_req);
 
                 //获取buff
                 let buf = await cmc.spellList(spell_list);
