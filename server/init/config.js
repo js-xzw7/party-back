@@ -5,18 +5,20 @@ const configure = function () {
         fs = require('fs-extra'),
         chalk = require('chalk'),
         customize = require('kml-customize'),
-        PROJECT_NAME = 'startup';
+        PROJECT_NAME = 'party_back';
+        
+    let BASE_URL = `http://localhost:8001/${PROJECT_NAME}/`;
+    let host = '127.0.0.1';
+   /*  let host = '111.231.106.247'; */
+    let port = '5432';
+    let database = 'party';
+    let username = 'postgres';
+    let password = 'ok';
 
-    let BASE_URL = `https://dev.kmlab.com/${PROJECT_NAME}/`;
-    let host = '58.246.253.126';
-    let port = '5433';
-    let database = 'jhsaas';
-    let username = 'pms';
-    let password = 'pms';
-    let redisHost = '192.168.1.90';
+    let redisHost = 'localhost';
     let redisPort = 6379;
     let redisDB = 0;
-    let redisPass = 'itomix';
+    let redisPass = '';
 
     const root = process.cwd(),
         server_path = 'server', //后端主目录
@@ -60,7 +62,7 @@ const configure = function () {
 
         //系统目录定义
         system: {
-            bind_port: 8888, //绑定端口
+            bind_port: 8001, //绑定端口
             base_url: BASE_URL, //主URL
             project_name: PROJECT_NAME, //项目名
             additional: '_action', //路由后缀
@@ -82,14 +84,14 @@ const configure = function () {
             LOGS_PATH: path.resolve(root, logs_path) //日志目录
         },
 
-        //文件上传目录定义
+        /* //文件上传目录定义
         upload: {
             root: `/opt/${PROJECT_NAME}-img/`,
             base_url: null,
             appimg: 'appimg/',
             qrimg: 'qrimg/',
             wximg: 'wximg/'
-        },
+        }, */
 
         //微信定义
         wechat: {
@@ -119,18 +121,13 @@ const configure = function () {
 
         //枚举参数
         ENUM: {
-            DEFAULT: {
-                USERTYPE: 'P',
-                USERPASSWORD: '8888',
-                USERROLE: {
-                    ADMIN: 'ADMIN',
-                    USER: 'USER'
-                },
-                DUTY: '管理员',
-                PLATTYPE: 'P',
-                DUTYNAME: '管理员',
-                CORPTYPE: 'P',
-                DUTYTYPE: 'P'
+            USER:{
+                //成员状态
+                STATUS:{
+                    APPLY:'APPLY',//已注册
+                    ENABLE:'ENABLE',//已审核
+                    DISABLE:'DISABLE'//已注销
+                }
             },
             TYPE: {
                 APPLY: 'APPLY',
@@ -138,6 +135,8 @@ const configure = function () {
                 FAIL: 'FAIL',
                 IGNORE: 'IGNORE',
                 DISABLE: 'DISABLE',
+                ZEIO: 0,
+                ONE: 1,
                 USE: 'USE',
                 USER: 'USER',
                 AUTO: 'AUTO',
@@ -157,7 +156,20 @@ const configure = function () {
             DEFAULT_LIMIT: 999,
             DEFAULT_PARAMS_ARRAY: ['create_id', 'create_name', 'create_code', 'create_date',
                 'optr_id', 'optr_name', 'optr_code', 'optr_date'],
-            STATUS_ARRAY: ['APPLY', 'ENABLE', 'DISABLE', 'Y', 'N', 'PUBLIC', 'PRIVATE']
+            STATUS_ARRAY: ['APPLY', 'ENABLE', 'DISABLE', 'Y', 'N', 'PUBLIC', 'PRIVATE'],
+            RESTRICT:{
+                STMT_MAX: 50 //参数声明，最大上限
+            },
+            UDP:{
+                UPDATE_PROT:6001
+            },
+            FILE_PARAMS:{
+                FILE_PATH:'/images/',//图片存放目录
+                AUDIO_PATH:'/audio',//音频存放目录
+                FILE_IMG:'DEFAULT_FILE.png',//默认文件封面
+                USER_IMG:'DEFAULT_AVATAR.png'//默认用户头像
+                
+            }
         },
 
         // 微信跳转页
@@ -165,7 +177,7 @@ const configure = function () {
             index: 'index.html'
         },
 
-        // 缓存设定
+        /* // 缓存设定
         cache: {
             ttl: {
                 PIN_TIMEOUT: 300, // 5分钟的验证码超时时间
@@ -173,7 +185,7 @@ const configure = function () {
                 EXPRESS_TTL: 86400, // 1 day
                 SESSION_TTL: 86400 // 1 day
             }
-        },
+        }, */
     };
 
     //创建目录

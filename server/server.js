@@ -4,7 +4,13 @@ const config = require('./init/config'),
     MpApiAction = require('./action/mpapi-action'),
     WeApiAction = require('./action/weapi-action'),
     BzApiAction = require('./action/bzapi-action'),
-    Uploader = require('./action/uploader');
+    Uploader = require('./action/uploader'),
+    path = require('path');
+const multer = require('multer'),
+    upload = multer({
+        dest:  '../public/images'
+    }),
+    cors = require('cors');
 
 // 定义参数
 const BIND_PORT = config.system.bind_port;
@@ -16,11 +22,15 @@ const logger = require('./init/log4js-init').system;
 logger.info('init db');
 require('./init/sequelize-init');
 
-
 // 定义express初始化
 logger.info('init express');
 const app = new (require('./init/express-init'))();
 
+// 处理上传文件
+app.use(upload.any())
+
+//设置跨域
+app.use(cors());
 
 //加载二级目录使用actions下的模块处理
 const routers_path = require('kml-express-stage-lib').routers_path;
@@ -29,21 +39,22 @@ let list = routers_path.list();
 list.forEach(function (router_path) {
     let pattern = `/${router_path}`;
     let api_action;
-    if (/[tc]/.test(router_path)) {
-        api_action = new MpApiAction(router_path)
-    } else if(/w/.test(router_path)) {
-        api_action = new WeApiAction((router_path))
-    } else {
-        api_action = new BzApiAction(router_path)
-    }
+    /*  if (/[tc]/.test(router_path)) {
+         api_action = new MpApiAction(router_path)
+     } else if(/w/.test(router_path)) {
+         api_action = new WeApiAction((router_path))
+     } else {
+         api_action = new BzApiAction(router_path)
+     } */
+    api_action = new MpApiAction(router_path);//不去过滤用户登录信息
     app.use(pattern, api_action);
 });
 
 // 定义文件上传
-app.use('/', new Uploader('appimg'));
+/* app.use('/', new Uploader('appimg')); */
 
 //启动服务
-const server = app.listen(BIND_PORT, function () {
+const server = app.listen(BIND_PORT, '0.0.0.0', function () {
     let os = require('os');
     let ifaces = os.networkInterfaces();
     let localhost = ['localhost'];
@@ -59,6 +70,7 @@ const server = app.listen(BIND_PORT, function () {
             if (alias >= 1) {
                 // this single interface has multiple ipv4 addresses
                 localhost.push(iface.address);
+
             } else {
                 // this interface has only one ipv4 adress
                 localhost.push(iface.address);
@@ -91,3 +103,10 @@ process.on('unhandledRejection', (e) => {
 process.on('rejectionHandled', (e) => {
     logger.warn('rejectionHandled from process', e);
 });
+
+//启动Udp socket
+require('./init/udp-socket-init');
+
+//启动WebSocke
+require('./init/websocket-ws');
+
