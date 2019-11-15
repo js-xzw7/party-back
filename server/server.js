@@ -8,7 +8,7 @@ const config = require('./init/config'),
     path = require('path');
 const multer = require('multer'),
     upload = multer({
-        dest:  '../public/images'
+        dest:  '/public/images'
     }),
     cors = require('cors');
 
