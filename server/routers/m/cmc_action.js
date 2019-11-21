@@ -14,10 +14,56 @@ class cmc {
         this.PTai = 'BFBF';
     }
 
-    //01.推送词条更新
+    //02.下位机初始化回复/更新ip通知
+    async initReply(mac,ip) {
+        //处理命令类型 0002
+        let comType = '0002';
+
+        // is_update: 1修改 0不修改
+        let is_update = ip ? '0001' : '0000'
+        //拼接处理buff
+        //协议头部+命令类型
+        let head = this.PHead + comType + mac;
+
+        //设置默认ip
+        ip = ip || `192.168.9.120`
+
+        //ip地址转换数值(16进制)
+        ip = await tools.ipToInt(ip);
+
+        //创建ip
+        let buf_str = head + is_update + ip + this.PTai
+        let buffer = new Buffer.alloc(buf_str.length/2);
+        buffer.write(buf_str, 0,buffer.length, 'hex');
+
+        /* //创建buff对象
+        let buffer_length = (head.length + is_update.length + ip.length + this.PTai.length)/2  
+        let buffer = new Buffer.alloc(buffer_length);
+
+        //偏移量
+        let offset = 0;
+        //写入协议头
+        buffer.write(head, offset, head.length / 2, 'hex');
+        offset += head.length / 2;
+
+        //写入是否更新ip标识
+        buffer.write(is_update,offset,is_update.length/2,'hex');
+        offset += is_update.length/2;
+
+        //写入ip地址
+        buffer.write(ip,offset,ip.length/2,'hex');
+        offset += ip.length/2;
+
+        //写入包尾
+        buffer.write(this.PTai,offset,this.PTai.length/2,'hex'); */
+
+        return buffer;
+    };
+
+    //03.推送词条更新
     spellList(data) {
-        //处理命令类型 0001 为16进制数
-        let comType = '0001';
+        //处理命令类型 0003 为16进制数
+        let comType = '0003';
 
         //获取词条数
         let c_count = tools.toHex(data.length);
@@ -75,10 +121,10 @@ class cmc {
         return buffer;
     };
 
-    //03.通知已收到识别词条消息
+    //06.通知已收到识别词条消息
     receiveSpell(id) {
-        //处理命令类型 0003
-        let comType = '0003';
+        //处理命令类型 0006
+        let comType = '0006';
 
         return Buffer.from(this.PHead + comType + id + this.PTai, 'hex');
     };

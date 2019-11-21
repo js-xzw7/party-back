@@ -5,7 +5,9 @@
 
 global.wsObj = {}; //存放ws连接
 let WebSocketServer = require('ws').Server,
-    wss = new WebSocketServer({ port: 8002 }),
+    _ = require('lodash'),
+    ENUM = global.config.ENUM,
+    wss = new WebSocketServer({ port: global.config.ENUM.DEFAULT_PORT.WS_PORT }),
     logger = require('./log4js-init').system,
     meeting = new (require('../routers/c/meeting_action'))(global.sequelize),
     contron = new (require('../routers/m/contron_action'))(global.sequelize),
@@ -33,6 +35,7 @@ wss.on('connection', function (ws) {
          * 3：返回识别词条相应文件内容
          * 4：返回识别词条指令（上一页、下一页等）
          * 5：错误提示
+         * 6: 未完成初始化，返回初始化页面
         */
 
         //处理前端接收的消息
@@ -46,13 +49,14 @@ wss.on('connection', function (ws) {
 
                 if (!client_cfig.content) {
                     logger.error(`${ip}未配置显示菜单！`);
-                    ws.send(`{"type":5,"res":"${ip}未配置显示菜单,请联系管理员!"}`);
+                    /* ws.send(`{"type":5,"res":"${ip}未配置显示菜单,请联系管理员!"}`); */
+                    ws.send(`{"type":6,"res":"${ip}未配置显示菜单，请设置!"}`);
                     return;
                 }  
 
                 if(client_cfig.content.status === 'DISABLE'){
                     logger.error(`${ip}显示菜单被禁用！`);
-                    ws.send(`{"type":5,"res":"${ip}显示菜单被禁用，请联系管理员!"}`);
+                    ws.send(`{"type":6,"res":"${ip}显示菜单被禁用，请重新设置!"}`);
                     return;
                 }
 
@@ -63,9 +67,11 @@ wss.on('connection', function (ws) {
                 //获取菜单名称
                 let menu_info = await contron.findMenuNameGet(client_cfig.content.type);
 
-                meeting_list.code = 0;
+                //处理返回格式
+                meeting_list = _.merge(meeting_list,{/* code:0, */menu:menu_info.name,menu_type:menu_info.type})
+                /* meeting_list.code = 0;
                 meeting_list.menu = menu_info.name;
-                meeting_list.menu_type = menu_info.type;
+                meeting_list.menu_type = menu_info.type; */
                 ws.send(`{"type":0,"res":${JSON.stringify(meeting_list)}}`);
                 break;
 
@@ -87,7 +93,7 @@ wss.on('connection', function (ws) {
 
                 /* console.log(buf.toString('hex')); */
 
-                global.udpServer.send(buf, parseInt(map_info.content.udp_port), map_info.content.udp_ip)
+                global.udpServer.send(buf, parseInt(ENUM.DEFAULT_PORT.BRC_PROT), map_info.content.udp_ip)
                 break;
 
             case 2:

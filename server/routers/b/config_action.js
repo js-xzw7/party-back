@@ -4,7 +4,7 @@
  * @module b/config
  * @author 王维琦
  * @description
- *  部门相关操作
+ *  配置操作
  */
 module.exports = function (dbo) {
     //api公共模块
@@ -14,7 +14,9 @@ module.exports = function (dbo) {
         logger = global.loggers.system,
         config = global.config,
         ENUM = config.ENUM,
-        crypto_utils = require('kml-crypto-utils');
+        crypto_utils = require('kml-crypto-utils'),
+        tools = new (require('../../lib/tools')),
+        cmc = new(require('../m/cmc_action'));
 
     /**
      * 01.配置客户端显示模块
@@ -28,10 +30,6 @@ module.exports = function (dbo) {
     this.showMenuPost = async function (req) {
         //b/config/showMenu  --post
         try {
-            let session = req.session,
-                my_user_id = _.get(session, 'active_user.user_id'),
-                my_dep_id = _.get(session, 'active_user.dep_id'),
-                { updatedBy, createdBy } = req.default_params;
 
             //获取参数
             let params = req.body,
@@ -51,7 +49,7 @@ module.exports = function (dbo) {
                     return Result.Error('type参数无效！');
                 }
                 params.status = param_info.status;
-                config_info = _.merge(config_info,params, updatedBy);
+                config_info = _.merge(config_info,params);
                 await config_info.save();
 
                 msg += `${ip}-更新成功！`;
@@ -59,11 +57,9 @@ module.exports = function (dbo) {
                 //添加配置
                 let cfg_id = crypto_utils.UUID();
                 await TBCfig.create(_.merge({
-                    cfg_id,
-                    status: ENUM.TYPE.ENABLE,
-                    dep_id: my_dep_id,
-                    ip, type
-                }, updatedBy, createdBy));
+                    cfg_id,ip, type,
+                    status: ENUM.TYPE.ENABLE
+                }));
 
                 msg += `${ip}-配置成功！`;
             }
@@ -87,10 +83,6 @@ module.exports = function (dbo) {
     this.findAllCfigGet = async function (req) {
         //b/config/findAllCfig  --get
         try {
-            let session = req.session,
-                my_user_id = _.get(session, 'active_user.user_id'),
-                my_dep_id = _.get(session, 'active_user.dep_id'),
-                { updatedBy, createdBy } = req.default_params;
 
             //加载模型
             let TBCfig = po.import(dbo, 'tb_client_config');
@@ -121,9 +113,6 @@ module.exports = function (dbo) {
     this.findByIpCfigGet = async function (req) {
         //b/config/findByIpCfig  --get
         try {
-            let session = req.session,
-                my_user_id = _.get(session, 'active_user.user_id'),
-                my_dep_id = _.get(session, 'active_user.dep_id');
 
             //获取参数
             let params = req.query,
@@ -147,7 +136,7 @@ module.exports = function (dbo) {
     }
 
     /**
-     * 04.删除客户端配置
+     * 04.删除客户端配置(暂未使用)
      *
      * @param {Object} req - 请求参数
      * @param {Object} res - 返回参数
@@ -187,30 +176,39 @@ module.exports = function (dbo) {
      * @param {string} res.msg - 返回消息
      * @param {object} res.content - 返回内容
      */
-    this.addMapPost = async function (req) {
-        //b/config/addMap  --post
+    this.updateMapPost = async function (req) {
+        //b/config/update  --post
         try {
-            let session = req.session,
-                my_user_id = _.get(session, 'active_user.user_id'),
-                my_dep_id = _.get(session, 'active_user.dep_id'),
-                { updatedBy, createdBy } = req.default_params;
 
             //获取参数
             let params = req.body,
-                { udp_ip, udp_port, ws_ip, ws_port } = params;
+                { udp_mac,udp_ip,ws_ip } = params;
+
+            if(!udp_mac){
+                return Result.Error('缺少参数udp_mac!');
+            };
 
             //加载模型
             let TBMap = po.import(dbo, 'tb_address_map');
 
-            let map_id = crypto_utils.UUID();
-            await TBMap.create(_.merge({
-                map_id,
-                status: ENUM.TYPE.ENABLE,
-                dep_id: my_dep_id,
-                udp_ip, ws_ip,
-                udp_port: udp_port || '3003',
-                ws_port: ws_port || '8002'
-            }));
+            //查询udp_mac是否已保存
+            let map_info = await TBMap.findOne({where:{udp_mac}});
+
+            if(!map_info){
+                //添加映射
+                let map_id = udp_mac;
+                await TBMap.create(_.merge({
+                    map_id,udp_mac,
+                    status: ENUM.TYPE.APPLY
+                }));
+            }else{
+                //修改映射
+                if(!udp_ip || !ws_ip){
+                    return Result.Error('请完善参数，更新失败！');
+                }
+                map_info = _.merge(map_info,params,{status:ENUM.TYPE.ENABLE});
+                await map_info.save();
+            }
 
             return Result.Ok('成功！');
         } catch (error) {
@@ -231,10 +229,6 @@ module.exports = function (dbo) {
     this.findAllMapGet = async function (req) {
         //b/config/findAllMap  --get
         try {
-            let session = req.session,
-                my_user_id = _.get(session, 'active_user.user_id'),
-                my_dep_id = _.get(session, 'active_user.dep_id'),
-                { updatedBy, createdBy } = req.default_params;
 
             //加载模型
             let TBMap = po.import(dbo, 'tb_address_map');
@@ -245,7 +239,9 @@ module.exports = function (dbo) {
                 }
             }, {
                 where: {
-                    status: ENUM.TYPE.ENABLE
+                    status:{
+                        [dbo.Op.not]:ENUM.TYPE.DISABLE
+                    }
                 }
             });
 
@@ -268,9 +264,6 @@ module.exports = function (dbo) {
     this.findByIpMapGet = async function (req) {
         //b/config/ffindByIpMap  --get
         try {
-            let session = req.session,
-                my_user_id = _.get(session, 'active_user.user_id'),
-                my_dep_id = _.get(session, 'active_user.dep_id');
 
             //获取参数
             let params = req.query,
@@ -289,6 +282,150 @@ module.exports = function (dbo) {
             });
 
             return Result.Ok('成功！', map_info);
+        } catch (error) {
+            logger.error('失败！', error);
+            return Result.Error('失败', error.message);
+        }
+    }
+
+    /**
+     * 07.根据mac地址查询映射
+     *
+     * @param {Object} req - 请求参数
+     * @param {Object} res - 返回参数
+     * @param {string} res.ret - 返回状态 [OK、ERROR]
+     * @param {string} res.msg - 返回消息
+     * @param {object} res.content - 返回内容
+     */
+    this.findByMacMapGet = async function (req) {
+        //b/config/findByMacMap  --get
+        try {
+
+            //获取参数
+            let params = req.query,
+                { udp_mac} = params;
+
+            //加载模型
+            let TBMap = po.import(dbo, 'tb_address_map');
+
+            let map_info = await TBMap.findOne({
+                attributes: {
+                    exclude: ENUM.DEFAULT_PARAMS_ARRAY
+                },
+                where: {udp_mac}
+            });
+
+            return Result.Ok('成功！', map_info);
+        } catch (error) {
+            logger.error('失败！', error);
+            return Result.Error('失败', error.message);
+        }
+    }
+
+    /**
+     * 08.查询所有mac地址
+     *
+     * @param {Object} req - 请求参数
+     * @param {Object} res - 返回参数
+     * @param {string} res.ret - 返回状态 [OK、ERROR]
+     * @param {string} res.msg - 返回消息
+     * @param {object} res.content - 返回内容
+     */
+    this.findAllMacGet = async function (req) {
+        //b/config/findAllMac  --get
+        try {
+
+            //加载模型
+            let TBMap = po.import(dbo, 'tb_address_map');
+
+            let mac_list = await TBMap.findAll({
+                attributes:['map_id','status','udp_mac'],
+                where:{
+                    status:{
+                        [dbo.Op.not]:ENUM.TYPE.DISABLE
+                    }
+                },
+                order:[['status','asc']]
+            })
+
+            return Result.Ok('成功！', mac_list);
+        } catch (error) {
+            logger.error('失败！', error);
+            return Result.Error('失败', error.message);
+        }
+    }
+
+    /**
+     * 09.客户端初始化
+     *
+     * @param {Object} req - 请求参数
+     * @param {Object} res - 返回参数
+     * @param {string} res.ret - 返回状态 [OK、ERROR]
+     * @param {string} res.msg - 返回消息
+     * @param {object} res.content - 返回内容
+     */
+    this.clientInitPost = async function (req) {
+        //b/config/clientInit  --Post
+        try {
+            let params = req.body,
+            {udp_mac,udp_ip,menu,ws_ip} = params;
+
+            //设置默认客户端ip
+            ws_ip = ws_ip || req.clientIp
+
+            if(!udp_mac || !udp_ip || !menu){
+                return Result.Error('请完善参数！');
+            };
+
+            //更新映射关系
+            req.body.ws_ip = ws_ip;
+            let update_map = await this.updateMapPost(req);
+
+            if(update_map && update_map.ret !== 'OK'){
+                return update_map
+            }
+
+            //更新客户端显示菜单
+            req.body.ip = ws_ip;
+            req.body.type = menu;
+            let show_menu = await this.showMenuPost(req);
+
+            if(show_menu && show_menu.ret !== 'OK'){
+                return show_menu
+            }
+
+            //广播通知下位机修改ip
+            let buf = await cmc.initReply(udp_mac,udp_ip);
+            //获得广播地址
+            let broadcast_ip = await tools.getBroadcast();
+            global.udpServer.send(buf,ENUM.DEFAULT_PORT.BRC_PROT,broadcast_ip)
+            
+            return Result.Ok('成功！');
+        } catch (error) {
+            logger.error('失败！', error);
+            return Result.Error('失败', error.message);
+        }
+    }
+
+    /**
+     * 10.获取子网地址
+     *
+     * @param {Object} req - 请求参数
+     * @param {Object} res - 返回参数
+     * @param {string} res.ret - 返回状态 [OK、ERROR]
+     * @param {string} res.msg - 返回消息
+     * @param {object} res.content - 返回内容
+     */
+    this.getSubnetGet = async function (req) {
+        //b/config/getSubnet  --get
+        try {
+            
+            let subnet = await tools.getBroadcast();
+
+            let index = subnet.lastIndexOf('.')
+
+            subnet = subnet.substring(0,index);
+            return Result.Ok('成功！',{subnet});
         } catch (error) {
             logger.error('失败！', error);
             return Result.Error('失败', error.message);

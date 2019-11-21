@@ -36,6 +36,7 @@ module.exports = function (dbo) {
 
             if(params_info){
                 let result = Result.Ok('成功!',params_info);
+                //命令词条返回命令类型，以便前端处理
                 result.code = params_info.type;
                 return {"type":4,"res":result};
             }
@@ -50,7 +51,7 @@ module.exports = function (dbo) {
             };
 
             let result = Result.Ok('成功!',meeting_info);
-            result.code = 1;
+            /* result.code = 1; */
             return {"type":3,"res":result};
            
         } catch (e) {

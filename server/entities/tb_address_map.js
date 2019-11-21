@@ -40,6 +40,11 @@ module.exports = function(sequelize, DataTypes) {
         "comment": "所属部门",
         "field": "dep_id"
     },
+    "udp_mac": {
+        "type": DataTypes.STRING(100),
+        "comment": "udp_mac",
+        "field": "udp_mac"
+    },
     "udp_ip": {
         "type": DataTypes.STRING(100),
         "comment": "udp_ip",
@@ -49,6 +54,11 @@ module.exports = function(sequelize, DataTypes) {
         "type": DataTypes.STRING(100),
         "comment": "udp_port",
         "field": "udp_port"
+    },
+    "ws_mac": {
+        "type": DataTypes.STRING(100),
+        "comment": "ws_mac",
+        "field": "ws_mac"
     },
     "ws_ip": {
         "type": DataTypes.STRING(100),

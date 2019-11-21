@@ -9,7 +9,8 @@ module.exports = function () {
         ENUM = global.config.ENUM,
         contron = new (require('../routers/m/contron_action'))(global.sequelize),
         cfig = new (require('../routers/b/config_action'))(global.sequelize),
-        cmc = new (require('../routers/m/cmc_action'));
+        cmc = new (require('../routers/m/cmc_action')),
+        tools = new(require('../lib/tools'));
 
     //建立udp服务器
     let server = dgram.createSocket('udp4');
@@ -28,14 +29,34 @@ module.exports = function () {
         message = message.toString('hex')
         logger.info('upd获取数据：'+message)
 
-        //判断命令类型
-        let commdType = parseInt(message.substring(4, 6))
+        //判断命令类型(我也不知道为啥，下位机发16进制1，我接收到0100，直接生硬截取前两位处理好了)
+        let commdType = parseInt(message.substring(4, 6), 16);
         switch (commdType) {
-            case 2:
+            case 1:
+                //初始化，寻找服务器
+                let mac = message.substring(8, message.length -4);
+
+                //判断mac是否已经记录
+                let mac_req = {"query":{"udp_mac":mac}}
+                let mac_map = await cfig.findByMacMapGet(mac_req);
+
+                if(!mac_map.content){
+                    //如果不存在，保存mac地址
+                    let add_req = {"body":{"udp_mac":mac}}
+                    await cfig.updateMapPost(add_req)
+                }
+
+                //服务器回复
+                let buf = await cmc.initReply(mac);
+                console.log(buf.toString('hex'));
+                let broadcast_ip = await tools.getBroadcast();
+                server.send(buf,ENUM.DEFAULT_PORT.BRC_PROT,broadcast_ip)
+                break;
+            case 4:
                 //词条更新回复
                 console.log('词条更新回复！');
                 break;
-            case 4:
+            case 5:
                 //识别到语音词条
                 logger.info(`${ip}识别拼音词条:`);
 
@@ -83,7 +104,7 @@ module.exports = function () {
         logger.info(`upd server error:\n${err.stack}`)
     })
 
-    server.bind(3002);
+    server.bind(ENUM.DEFAULT_PORT.UDP_PORT);
     global.udpServer = server;
 }();
 

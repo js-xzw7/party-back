@@ -160,8 +160,10 @@ const configure = function () {
             RESTRICT:{
                 STMT_MAX: 50 //参数声明，最大上限
             },
-            UDP:{
-                UPDATE_PROT:6001
+            DEFAULT_PORT:{
+                UDP_PORT:3002,//udp端口
+                WS_PORT:8002,//websoket端口
+                BRC_PROT:6001//广播端口
             },
             FILE_PARAMS:{
                 FILE_PATH:'/images/',//图片存放目录
