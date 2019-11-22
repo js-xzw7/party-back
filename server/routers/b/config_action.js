@@ -431,4 +431,42 @@ module.exports = function (dbo) {
             return Result.Error('失败', error.message);
         }
     }
+
+    /**
+     * 11.查询客户端配置
+     *
+     * @param {Object} req - 请求参数
+     * @param {Object} res - 返回参数
+     * @param {string} res.ret - 返回状态 [OK、ERROR]
+     * @param {string} res.msg - 返回消息
+     * @param {object} res.content - 返回内容
+     */
+    this.findClientConfigGet = async function (req) {
+        //b/config/findClientConfig  --get
+        try {
+            //获取客户端ip
+            let ip = req.clientIp;
+
+            //加载模型
+            let [TBMap,TBCfig] = po.import(dbo, ['tb_address_map','tb_client_config']);
+
+            //查询映射关系
+            let map_info = await TBMap.findOne({
+                attributes:['udp_mac','udp_ip'],
+                where:{ws_ip:ip,status:ENUM.TYPE.ENABLE}
+            })
+
+            //查询客户端显示菜单
+            let menu_info = await TBCfig.findOne({
+                attributes:['type'],
+                where:{ip:ip,status:ENUM.TYPE.ENABLE}
+            })
+          
+            let data = map_info && menu_info ? _.merge(map_info,menu_info) : {};
+            return Result.Ok('成功！',data);
+        } catch (error) {
+            logger.error('失败！', error);
+            return Result.Error('失败', error.message);
+        }
+    }
 }

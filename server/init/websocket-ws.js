@@ -36,6 +36,7 @@ wss.on('connection', function (ws) {
          * 4：返回识别词条指令（上一页、下一页等）
          * 5：错误提示
          * 6: 未完成初始化，返回初始化页面
+         * 7: 下位机重启，重新获取词条请求
         */
 
         //处理前端接收的消息
@@ -54,7 +55,7 @@ wss.on('connection', function (ws) {
                     return;
                 }  
 
-                if(client_cfig.content.status === 'DISABLE'){
+                if(client_cfig.content.status === ENUM.TYPE.DISABLE){
                     logger.error(`${ip}显示菜单被禁用！`);
                     ws.send(`{"type":6,"res":"${ip}显示菜单被禁用，请重新设置!"}`);
                     return;
@@ -69,9 +70,6 @@ wss.on('connection', function (ws) {
 
                 //处理返回格式
                 meeting_list = _.merge(meeting_list,{/* code:0, */menu:menu_info.name,menu_type:menu_info.type})
-                /* meeting_list.code = 0;
-                meeting_list.menu = menu_info.name;
-                meeting_list.menu_type = menu_info.type; */
                 ws.send(`{"type":0,"res":${JSON.stringify(meeting_list)}}`);
                 break;
 

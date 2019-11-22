@@ -63,7 +63,14 @@ module.exports = function (dbo) {
             } */
 
             //加载数据模型
-            let [TBMeeting] = po.import(dbo, ['tb_meeting']);
+            let [TBMeeting,TBParams] = po.import(dbo, ['tb_meeting','tb_params']);
+
+            //检测菜单是否存在
+            let menu_info = await TBParams.findOne({where:{type:params.type,style:'C'}});
+
+            if(!menu_info){
+                return Result.Error('菜单不存在，请重新选择菜单！');
+            };
 
             //定义事务
             myRes.t1 = await dbo.transaction();
@@ -83,7 +90,7 @@ module.exports = function (dbo) {
                 //创建文献id
                 params.meeting_id = crypto_utils.UUID();
                 await TBMeeting.create(_.merge({
-                    status: ENUM.TYPE.ENABLE,
+                    status: menu_info.status,
                     sort: sort_num,
                     dep_id: my_dep_id,
                     spell/* ,audio_url */
@@ -110,7 +117,7 @@ module.exports = function (dbo) {
                 } */
                 
                 //更新文献
-                let new_meeting_info = _.merge(meeting_info, params,{spell/* ,audio_url */}, updatedBy);
+                let new_meeting_info = _.merge(meeting_info, params,{spell,status: menu_info.status/* ,audio_url */}, updatedBy);
                 await new_meeting_info.save({ transaction: myRes.t1 });
 
                 msg += `更新文献成功！`;
