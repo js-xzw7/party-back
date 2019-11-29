@@ -96,7 +96,7 @@ module.exports = function (dbo) {
 
             let sql = `
                 SELECT C.cfg_id,C.status,C.note,C.TYPE,C.ip,
-	                ( CASE WHEN M.udp_mac NOTNULL THEN M.udp_mac ELSE'undefined' END ) mac
+	                ( CASE WHEN M.udp_mac NOTNULL THEN M.udp_mac ELSE '暂无配置' END ) mac
                 FROM tb_client_config C 
                     LEFT JOIN tb_address_map M 
                     ON C.ip = M.ws_ip 
