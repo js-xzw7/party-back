@@ -55,13 +55,6 @@ module.exports = function (dbo) {
             //获取audio音频文件
             /* let audio_url = await tools.getTtsAudio(params.title,params.content); */
 
-           /*  //设置默认图片
-            if(!meeting_id && !params.img_url){
-                //获得当前ip
-                let ip = await tools.getIp();
-                params.img_url = `http://${ip}:${config.system.bind_port}${ENUM.FILE_PARAMS.FILE_PATH}${ENUM.FILE_PARAMS.FILE_IMG}`
-            } */
-
             //加载数据模型
             let [TBMeeting,TBParams] = po.import(dbo, ['tb_meeting','tb_params']);
 

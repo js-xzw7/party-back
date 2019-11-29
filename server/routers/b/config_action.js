@@ -33,7 +33,7 @@ module.exports = function (dbo) {
 
             //获取参数
             let params = req.body,
-                { ip, type } = params,
+                { ip, type,img_url } = params,
                 msg = ``;
 
             //加载模型
@@ -57,7 +57,7 @@ module.exports = function (dbo) {
                 //添加配置
                 let cfg_id = crypto_utils.UUID();
                 await TBCfig.create(_.merge({
-                    cfg_id,ip, type,
+                    cfg_id,ip, type,img_url,
                     status: ENUM.TYPE.ENABLE
                 }));
 
@@ -206,8 +206,15 @@ module.exports = function (dbo) {
                 if(!udp_ip || !ws_ip){
                     return Result.Error('请完善参数，更新失败！');
                 }
-                map_info = _.merge(map_info,params,{status:ENUM.TYPE.ENABLE});
-                await map_info.save();
+                await TBMap.update({
+                    udp_ip:udp_ip,
+                    ws_ip:ws_ip,
+                    status:ENUM.TYPE.ENABLE
+                },{
+                    where:{udp_mac}
+                })
+                /* map_info = _.merge(map_info,{udp_ip:udp_ip,ws_ip:ws_ip,status:ENUM.TYPE.ENABLE});
+                await map_info.save(); */
             }
 
             return Result.Ok('成功！');
@@ -234,9 +241,10 @@ module.exports = function (dbo) {
             let TBMap = po.import(dbo, 'tb_address_map');
 
             let map_list = await TBMap.findAll({
-                attributes: {
+                /* attributes: {
                     exclude: ENUM.DEFAULT_PARAMS_ARRAY
-                }
+                } */
+                attributes:["map_id", "status", "note", "ctrl_status", "dep_id", "udp_mac", "udp_ip", "udp_port", "ws_mac", "ws_ip", "ws_port"]
             }, {
                 where: {
                     status:{
@@ -275,9 +283,10 @@ module.exports = function (dbo) {
             let TBMap = po.import(dbo, 'tb_address_map');
 
             let map_info = await TBMap.findOne({
-                attributes: {
+                attributes:["map_id", "status","udp_mac", "udp_ip", "udp_port", "ws_mac", "ws_ip", "ws_port"],
+               /*  attributes: {
                     exclude: ENUM.DEFAULT_PARAMS_ARRAY
-                },
+                }, */
                 where: whereObj
             });
 
@@ -368,7 +377,7 @@ module.exports = function (dbo) {
         //b/config/clientInit  --Post
         try {
             let params = req.body,
-            {udp_mac,udp_ip,menu,ws_ip} = params;
+            {udp_mac,udp_ip,menu,ws_ip,img_url} = params;
 
             //设置默认客户端ip
             ws_ip = ws_ip || req.clientIp
@@ -379,6 +388,7 @@ module.exports = function (dbo) {
 
             //更新映射关系
             req.body.ws_ip = ws_ip;
+            req.body.udp_ip = udp_ip;
             let update_map = await this.updateMapPost(req);
 
             if(update_map && update_map.ret !== 'OK'){
@@ -447,7 +457,7 @@ module.exports = function (dbo) {
             //获取客户端ip
             let ip = req.clientIp;
 
-            //加载模型
+           /*  //加载模型
             let [TBMap,TBCfig] = po.import(dbo, ['tb_address_map','tb_client_config']);
 
             //查询映射关系
@@ -458,11 +468,19 @@ module.exports = function (dbo) {
 
             //查询客户端显示菜单
             let menu_info = await TBCfig.findOne({
-                attributes:['type'],
+                attributes:['type','img_url'],
                 where:{ip:ip,status:ENUM.TYPE.ENABLE}
-            })
-          
-            let data = map_info && menu_info ? _.merge(map_info,menu_info) : {};
+            }) */
+
+            //查询映射问题
+            req.query.type = 'ws';
+            req.query.ip = req.clientIp;
+            let map_info = await this.findByIpMapGet(req);
+
+            //查询客户端显示问题
+            let menu_info = await this.findByIpCfigGet(req);
+
+            let data = map_info.content && menu_info.content ? _.merge(map_info.content,menu_info.content) : {};
             return Result.Ok('成功！',data);
         } catch (error) {
             logger.error('失败！', error);

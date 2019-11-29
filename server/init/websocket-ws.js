@@ -86,6 +86,12 @@ wss.on('connection', function (ws) {
                 let new_req = { "query": { "ip": ip, "type": "ws" } };
                 let map_info = await cfig.findByIpMapGet(new_req);
 
+                if(!map_info.content){
+                    logger.error(`${ip}未配置映射关系`)
+                    ws.send(`{"type":6,"res":"未进行初始化!"}`);
+                    return;
+                }
+
                 //获取buff
                 let buf = await cmc.spellList(spell_list);
 
@@ -101,9 +107,14 @@ wss.on('connection', function (ws) {
         }
     })
 
+    //监听错误
+    ws.on('error', function (error) {
+        logger.info(`${ip}socket错误：`+error);
+    });
+
     //关闭连接
     ws.on('close', function (message) {
-        logger.info(`websoket关闭:${message}`);
+        logger.info(`${ip}websoket关闭:${message}`);
     });
 })
 

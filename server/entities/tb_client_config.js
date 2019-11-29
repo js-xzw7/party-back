@@ -49,6 +49,11 @@ module.exports = function(sequelize, DataTypes) {
         "type": DataTypes.INTEGER,
         "comment": "菜单类型",
         "field": "type"
+    },
+    "img_url": {
+        "type": DataTypes.STRING(100),
+        "comment": "首页图片",
+        "field": "img_url"
     }
 });
 
