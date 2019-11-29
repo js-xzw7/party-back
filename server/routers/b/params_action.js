@@ -36,7 +36,7 @@ module.exports = function (dbo) {
 
             //获取数据对象
             let params = req.body,
-                { param_id, name, style } = params,
+                { param_id, name, style, note } = params,
                 msg = ``;
 
             if (!name) {
@@ -75,6 +75,7 @@ module.exports = function (dbo) {
                 param_id = crypto_utils.UUID();
                 await TBParams.create({
                     param_id: param_id,
+                    note: note,
                     status: ENUM.TYPE.ENABLE,
                     spell: name_spell,
                     name, type, style: style
@@ -86,7 +87,7 @@ module.exports = function (dbo) {
                 await TBParams.update(_.merge({
                     name: name,
                     spell: name_spell
-                }, updatedBy), {
+                }), {
                     where: { param_id }
                 });
 
@@ -194,7 +195,7 @@ module.exports = function (dbo) {
 
             //删除菜单
             await TBParams.destroy({
-                where:{param_id},
+                where: { param_id },
                 queryOptions
             });
 

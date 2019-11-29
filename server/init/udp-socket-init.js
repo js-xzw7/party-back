@@ -36,7 +36,7 @@ module.exports = function () {
                 //初始化，寻找服务器
                 let mac = message.substring(8, message.length - 4);
 
-                //服务器回复
+                //服务器回复(广播)
                 let buf = await cmc.initReply(mac);
                 console.log(buf.toString('hex'));
                 let broadcast_ip = await tools.getBroadcast();
