@@ -44,58 +44,39 @@ module.exports = function (dbo) {
             //判断删除类型
             switch (type) {
                 case 'W':
-                    removeList.map(r => {
+                    //删除文件
+                    /* removeList.map(r => {
                         req.body = { meeting_id: r }
                         Meeting.deleteMeetingPost(req);
-                    })
+                    }) */
+                    for(let i = 0; i< removeList.length;i++){
+                        req.body = { meeting_id: removeList[i] }
+                        await Meeting.deleteMeetingPost(req);
+                    }
                     break;
                 case 'C':
-
-                    removeList.map(r => {
+                    //删除菜单
+                    /* removeList.map(r => {
                         req.body = { param_id: r }
                         Params.deleteMenuPost(req);
-                    })
-
+                    }) */
+                    for(let i = 0; i< removeList.length;i++){
+                        req.body = { param_id: removeList[i] }
+                        await Params.deleteMenuPost(req);
+                    }
+                    break;
                 case 'P':
-                    removeList.map(r => {
+                    //删除配置
+                    /* removeList.map(r => {
                         req.body = { ip: r }
                         Cfg.deleteCfigPost(req);
-                    })
+                    }) */
+                    for(let i = 0; i< removeList.length;i++){
+                        req.body = { ip: removeList[i] }
+                        await Cfg.deleteCfigPost(req);
+                    }
                     break;
             }
-
-
-            /* switch (type) {
-                case 'W':
-                    removeList.map(r => {
-                        TBMeeting.update({
-                            status: ENUM.TYPE.DISABLE
-                        }, {
-                            where: { meeting_id: r }
-                        })
-
-                    })
-                    break;
-                case 'C':
-                    removeList.map(r => {
-                        TBParams.update({
-                            status: ENUM.TYPE.DISABLE
-                        }, {
-                            where: { param_id: r }
-                        })
-                    })
-                    break;
-                case 'P':
-                    removeList.map(r => {
-                        TBConfig.update({
-                            status: ENUM.TYPE.DISABLE
-                        }, {
-                            where: { cfg_id: r }
-                        })
-                    })
-
-                    break;
-            } */
 
             return Result.Ok('删除成功！');
         } catch (e) {

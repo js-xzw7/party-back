@@ -95,14 +95,16 @@ module.exports = function (dbo) {
             }); */
 
             let sql = `
-                SELECT C.cfg_id,C.status,C.note,C.TYPE,C.ip,
+                SELECT C.cfg_id,C.status,C.TYPE,C.ip,P.note,
 	                ( CASE WHEN M.udp_mac NOTNULL THEN M.udp_mac ELSE '暂无配置' END ) mac
                 FROM tb_client_config C 
-                    LEFT JOIN tb_address_map M 
-                    ON C.ip = M.ws_ip 
+                    INNER JOIN tb_address_map M 
+                    ON C.ip = M.ws_ip
+                    LEFT JOIN tb_params P
+					ON C.type = P.type 
                 ORDER BY C.optr_date DESC`
-            
-            let cfig_list = await dbo.query(sql,{
+
+            let cfig_list = await dbo.query(sql, {
                 replacements: {},
                 type: dbo.QueryTypes.SELECT,
             })
