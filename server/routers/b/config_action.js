@@ -95,7 +95,7 @@ module.exports = function (dbo) {
             }); */
 
             let sql = `
-                SELECT C.cfg_id,C.status,C.TYPE,C.ip,P.note,
+                SELECT C.cfg_id,C.status,C.TYPE,C.ip,P.note,M.udp_ip,
 	                ( CASE WHEN M.udp_mac NOTNULL THEN M.udp_mac ELSE '暂无配置' END ) mac
                 FROM tb_client_config C 
                     INNER JOIN tb_address_map M 

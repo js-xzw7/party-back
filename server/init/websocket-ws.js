@@ -49,15 +49,15 @@ wss.on('connection', function (ws) {
                 let client_cfig = await cfig.findByIpCfigGet(req);
 
                 if (!client_cfig.content) {
-                    logger.error(`${ip}未配置显示菜单！`);
+                    logger.error(`${ip}未配置主题！`);
                     /* ws.send(`{"type":5,"res":"${ip}未配置显示菜单,请联系管理员!"}`); */
-                    ws.send(`{"type":6,"res":"${ip}未配置显示菜单，请设置!"}`);
+                    ws.send(`{"type":6,"res":"${ip}未配置主题，请设置!"}`);
                     return;
                 }  
 
                 if(client_cfig.content.status === ENUM.TYPE.DISABLE){
-                    logger.error(`${ip}显示菜单被禁用！`);
-                    ws.send(`{"type":6,"res":"${ip}显示菜单被禁用，请重新设置!"}`);
+                    logger.error(`${ip}主题禁用！`);
+                    ws.send(`{"type":6,"res":"主题被禁用，请重新设置!"}`);
                     return;
                 }
 
