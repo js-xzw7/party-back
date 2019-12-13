@@ -58,10 +58,7 @@ module.exports = function (dbo) {
                 msg += `新增成功！`
             }else{
                 //更新管理员信息
-                await TBUser.update(_.merge({},params,{
-                    //处理密码
-                    login_password: crypto_utils.MD5(login_password + '@' + login_code)
-                }),{
+                await TBUser.update(params,{
                     where:{user_id}
                 })
                 msg += `更新成功`
@@ -141,7 +138,20 @@ module.exports = function (dbo) {
                 active_user = session.active_user,
                 { updatedBy, createdBy } = req.default_params;
 
+            //获取参数
+            let params = req.query,
+                { user_id } = params;
 
+            user_id = user_id || active_user && active_user.user_id 
+
+            //加载模型
+            let TBUser = po.import(dbo, 'tb_user');
+
+            let user_info = await TBUser.findById(user_id)
+
+            if(!user_info) return Result.Error('用户不存在')
+
+            return Result.Ok('成功！', user_info);
         } catch (error) {
             logger.error('失败！', error);
             return Result.Error('失败', error.message);
