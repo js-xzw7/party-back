@@ -69,7 +69,7 @@ module.exports = function (dbo) {
             let TBParmas = po.import(dbo,'tb_params');
 
             let menu_info = await TBParmas.findOne({
-                attributes:['name','type'],
+                attributes:['name','type','note'],
                 where:{
                     style:'C',
                     type:type

@@ -69,7 +69,7 @@ wss.on('connection', function (ws) {
                 let menu_info = await contron.findMenuNameGet(client_cfig.content.type);
 
                 //处理返回格式
-                meeting_list = _.merge(meeting_list,{/* code:0, */menu:menu_info.name,menu_type:menu_info.type})
+                meeting_list = _.merge(meeting_list,{/* code:0, */menu:menu_info.name,menu_type:menu_info.type,note:menu_info.note})
                 ws.send(`{"type":0,"res":${JSON.stringify(meeting_list)}}`);
                 break;
 
