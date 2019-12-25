@@ -333,9 +333,10 @@ module.exports = function (dbo) {
             let TBMap = po.import(dbo, 'tb_address_map');
 
             let map_info = await TBMap.findOne({
-                attributes: {
+                /* attributes: {
                     exclude: ENUM.DEFAULT_PARAMS_ARRAY
-                },
+                }, */
+                attributes:["map_id", "status", "note", "ctrl_status", "dep_id", "udp_mac", "udp_ip", "udp_port", "ws_mac", "ws_ip", "ws_port"],
                 where: { udp_mac }
             });
 
