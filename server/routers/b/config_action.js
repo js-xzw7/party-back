@@ -211,9 +211,8 @@ module.exports = function (dbo) {
 
             if (!map_info) {
                 //添加映射
-                let map_id = udp_mac;
                 await TBMap.create(_.merge({
-                    map_id, udp_mac,
+                    map_id:udp_mac, udp_mac,
                     status: ENUM.TYPE.APPLY
                 }));
             } else {
@@ -221,15 +220,15 @@ module.exports = function (dbo) {
                 if (!udp_ip || !ws_ip) {
                     return Result.Error('请完善参数，更新失败！');
                 }
-                await TBMap.update({
+               /*  await TBMap.update({
                     udp_ip: udp_ip,
                     ws_ip: ws_ip,
                     status: ENUM.TYPE.ENABLE
                 }, {
                     where: { udp_mac }
-                })
-                /* map_info = _.merge(map_info,{udp_ip:udp_ip,ws_ip:ws_ip,status:ENUM.TYPE.ENABLE});
-                await map_info.save(); */
+                }) */
+                map_info = await _.merge(map_info,{udp_ip:udp_ip,ws_ip:ws_ip,status:ENUM.TYPE.ENABLE});
+                await map_info.save();
             }
 
             return Result.Ok('成功！');
