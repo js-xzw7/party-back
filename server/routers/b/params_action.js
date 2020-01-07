@@ -223,4 +223,53 @@ module.exports = function (dbo) {
             return Result.Error('失败!', e.message);
         }
     }
+
+    /**
+     * 06.修改图片/视频路径
+     *
+     * @param {Object} req - 请求参数
+     * @param {Object} res - 返回参数
+     * @param {string} res.ret - 返回状态 [OK、ERROR]
+     * @param {string} res.msg - 返回消息
+     * @param {object} res.content - 返回内容
+     */
+    this.updateUrlGet = async (req) => {
+        // b/params/updateUrl --get
+        try {
+            //获取数据对象
+            let params = req.query,
+                { ip } = params;
+
+            //ip正则
+            let pattern = /((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})(\.((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})){3}/g;
+
+            if(!pattern.test(ip)) return Result.Error('请输入合法ip！');
+
+            //加载数据模型
+            let [TBMeeting] = po.import(dbo, ['tb_meeting']);
+
+            //查询所有文章及视频
+
+            let meeting_list = await TBMeeting.findAll();
+
+            for (let i = 0; i < meeting_list.length; i++){
+                let meeting = meeting_list[i],
+                    {img_url,audio_url} = meeting.dataValues;
+
+                
+                let newImgUrl = img_url && img_url.replace(pattern,ip);
+                let newAudioUrl = audio_url && audio_url.replace(pattern,ip);
+
+                //更新
+                meeting.img_url = newImgUrl;
+                meeting.audio_url = newAudioUrl;
+                await meeting.save();
+            }
+            
+            return Result.Ok('更新成功！')
+        } catch (e) {
+            logger.error('失败!', e);
+            return Result.Error('失败!', e.message);
+        }
+    }
 };
