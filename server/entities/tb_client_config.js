@@ -14,7 +14,7 @@ module.exports = function(sequelize, DataTypes) {
   let entity = _.merge({
     "cfg_id": {
         "type": DataTypes.STRING(40),
-        "comment": "id",
+        "comment": "配置id",
         "field": "cfg_id",
         "allowNull": false,
         "primaryKey": true

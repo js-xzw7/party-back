@@ -14,10 +14,11 @@ module.exports = function(sequelize, DataTypes) {
   let entity = _.merge({
     "map_id": {
         "type": DataTypes.STRING(40),
-        "comment": "id",
+        "comment": "映射id",
         "field": "map_id",
         "allowNull": false,
         "primaryKey": true
+
     }
 }, AbstractPO.DefaultEntity(sequelize, DataTypes), {
     "status": {

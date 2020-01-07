@@ -19,13 +19,13 @@ module.exports = function (dbo) {
         tools = new (require('../../lib/tools')),
         Meeting = new (require('../b/meeting_action'))(dbo),
         Params = new (require('../b/params_action'))(dbo),
-        Cfg = new (require('../b/config_action'))(dbo),
+        Cfg = new (require('../b/config_action'))(dbo);
         
-        http = require('http'),
+       /*  http = require('http'),
         querystring = require('querystring'),    // 处理请求参数的querystring模块
         fs = require('fs'),     // fs模块，用来保存语音文件
         path = require('path');
-
+ */
 
     /**
      * 01.批量删除
@@ -86,7 +86,7 @@ module.exports = function (dbo) {
     }
 
     /**
-     * 02.获取默认图片url
+     * 02.获取默认图片url（废弃）
      */
     this.getDefaultImg = async (req) => {
         try {
@@ -112,7 +112,7 @@ module.exports = function (dbo) {
     }
 
     /**
-     * 生成tts音频文件
+     * 生成tts音频文件（废弃）
      */
     this.getTtsAudioPost = async (req) => {
         try {

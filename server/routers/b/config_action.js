@@ -72,7 +72,7 @@ module.exports = function (dbo) {
     }
 
     /**
-     * 02.查看全部已配置客户端
+     * 02.查看全部已配置客户端（现改为单个）
      *
      * @param {Object} req - 请求参数
      * @param {Object} res - 返回参数
@@ -83,17 +83,8 @@ module.exports = function (dbo) {
     this.findAllCfigGet = async function (req) {
         //b/config/findAllCfig  --get
         try {
-
-            /* //加载模型
-            let TBCfig = po.import(dbo, 'tb_client_config');
-
-            let cfig_list = await TBCfig.findAll({
-                attributes: {
-                    exclude: ENUM.DEFAULT_PARAMS_ARRAY
-                },
-                order:[['optr_date','desc']]
-            }); */
-
+            let ws_ip = req.clientIp;
+            //查询当前请求ip的客户端配置
             let sql = `
                 SELECT C.cfg_id,C.status,C.TYPE,C.ip,P.note,M.udp_ip,
 	                ( CASE WHEN M.udp_mac NOTNULL THEN M.udp_mac ELSE '暂无配置' END ) mac
@@ -101,11 +92,12 @@ module.exports = function (dbo) {
                     INNER JOIN tb_address_map M 
                     ON C.ip = M.ws_ip
                     LEFT JOIN tb_params P
-					ON C.type = P.type 
+                    ON C.type = P.type 
+                    where m.ws_ip = :ws_ip
                 ORDER BY C.optr_date DESC`
 
             let cfig_list = await dbo.query(sql, {
-                replacements: {},
+                replacements: {ws_ip},
                 type: dbo.QueryTypes.SELECT,
             })
 
@@ -211,23 +203,33 @@ module.exports = function (dbo) {
 
             if (!map_info) {
                 //添加映射
-                await TBMap.create(_.merge({
-                    map_id:udp_mac, udp_mac,
+                /* await TBMap.create({
+                    map_id:udp_mac, udp_mac:udp_mac,
                     status: ENUM.TYPE.APPLY
-                }));
+                }); */
+
+                let sql = `
+                    insert into tb_address_map (map_id,create_date,optr_date,status,udp_mac) values (:map_id,now(),now(),:status,:udp_mac)
+                `
+                await dbo.query(sql,{
+                    replacements: {
+                        map_id:udp_mac,
+                        status:ENUM.TYPE.APPLY,
+                        udp_mac:udp_mac
+                    },
+                    type: dbo.QueryTypes.SELECT,
+                });
             } else {
                 //修改映射
                 if (!udp_ip || !ws_ip) {
                     return Result.Error('请完善参数，更新失败！');
                 }
-               /*  await TBMap.update({
-                    udp_ip: udp_ip,
-                    ws_ip: ws_ip,
-                    status: ENUM.TYPE.ENABLE
-                }, {
-                    where: { udp_mac }
-                }) */
-                map_info = await _.merge(map_info,{udp_ip:udp_ip,ws_ip:ws_ip,status:ENUM.TYPE.ENABLE});
+                
+                //删除ip原映射记录
+                /* await TBMap.update({ws_ip:null},{where:{ws_ip}}) */
+
+                //更新映射
+                map_info = _.merge(map_info,{udp_ip:udp_ip,ws_ip:ws_ip,status:ENUM.TYPE.ENABLE});
                 await map_info.save();
             }
 
@@ -390,9 +392,10 @@ module.exports = function (dbo) {
      */
     this.clientInitPost = async function (req) {
         //b/config/clientInit  --Post
+        let myRes = {};
         try {
             let params = req.body,
-                { udp_mac, udp_ip, menu, ws_ip, img_url } = params;
+                { udp_mac, udp_ip, menu, ws_ip } = params;
 
             //设置默认客户端ip
             ws_ip = ws_ip || req.clientIp
@@ -401,15 +404,28 @@ module.exports = function (dbo) {
                 return Result.Error('请完善参数！');
             };
 
+            /* //加载模型
+            let [TBMap,TBCfig,TBParams] = po.import(dbo, ['tb_address_map','tb_client_config','tb_params']);
+
             //更新映射关系
-            req.body.ws_ip = ws_ip;
-            req.body.udp_ip = udp_ip;
-            let update_map = await this.updateMapPost(req);
-
-            if (update_map && update_map.ret !== 'OK') {
-                return update_map
-            }
-
+            await TBMap.update({
+                udp_ip,ws_ip,
+                status:ENUM.TYPE.ENABLE
+            },{
+                where:{udp_mac}
+            }) */
+            let update_sql = `
+                update tb_address_map set udp_ip = :udp_ip,
+                    ws_ip = :ws_ip,status = 'ENABLE' 
+                where udp_mac = :udp_mac
+            `
+            await dbo.query(update_sql,{
+                replacements: {
+                    udp_ip,ws_ip,udp_mac
+                },
+                type: dbo.QueryTypes.SELECT,
+            });
+            
             //更新客户端显示菜单
             req.body.ip = ws_ip;
             req.body.type = menu;
@@ -417,8 +433,8 @@ module.exports = function (dbo) {
 
             if (show_menu && show_menu.ret !== 'OK') {
                 return show_menu
-            }
-
+            } 
+           
             //广播通知下位机修改ip
             let buf = await cmc.initReply(udp_mac, udp_ip);
             //获得广播地址
@@ -445,11 +461,11 @@ module.exports = function (dbo) {
         //b/config/getSubnet  --get
         try {
 
-            let subnet = await tools.getBroadcast();
+            let old_subnet = await tools.getBroadcast();
 
-            let index = subnet.lastIndexOf('.')
+            let index = old_subnet.lastIndexOf('.')
 
-            subnet = subnet.substring(0, index);
+            let subnet = old_subnet.substring(0, index);
             return Result.Ok('成功！', { subnet });
         } catch (error) {
             logger.error('失败！', error);
@@ -472,7 +488,7 @@ module.exports = function (dbo) {
             //获取客户端ip
             let ip = req.clientIp;
 
-            /*  //加载模型
+             //加载模型
              let [TBMap,TBCfig] = po.import(dbo, ['tb_address_map','tb_client_config']);
  
              //查询映射关系
@@ -485,18 +501,60 @@ module.exports = function (dbo) {
              let menu_info = await TBCfig.findOne({
                  attributes:['type','img_url'],
                  where:{ip:ip,status:ENUM.TYPE.ENABLE}
-             }) */
+             })
 
-            //查询映射问题
+            /* //查询映射问题
             req.query.type = 'ws';
             req.query.ip = req.clientIp;
             let map_info = await this.findByIpMapGet(req);
 
             //查询客户端显示问题
-            let menu_info = await this.findByIpCfigGet(req);
+            let menu_info = await this.findByIpCfigGet(req); */
 
-            let data = map_info.content && menu_info.content ? _.merge(map_info.content, menu_info.content) : {};
+            /* let data = map_info.content && menu_info.content ? _.merge(map_info.content, menu_info.content) : {}; */
+            let data = map_info && menu_info ? _.merge(map_info, menu_info) : {};
             return Result.Ok('成功！', data);
+        } catch (error) {
+            logger.error('失败！', error);
+            return Result.Error('失败', error.message);
+        }
+    }
+
+    /**
+     * 12.客户端配置页面所需参数
+     *
+     * @param {Object} req - 请求参数
+     * @param {Object} res - 返回参数
+     * @param {string} res.ret - 返回状态 [OK、ERROR]
+     * @param {string} res.msg - 返回消息
+     * @param {object} res.content - 返回内容
+     */
+    this.findClientparamsGet = async function (req) {
+        //b/config/findClientparams  --get
+        try {
+            //获取客户端ip
+            let ip = req.clientIp;
+
+            //加载模型
+            let TBParams = po.import(dbo, 'tb_params');
+
+            //查询所有mac地址
+            let mac_list = await this.findAllMacGet();
+
+            //查询所有的主题
+            let theme_list = await TBParams.findAll({
+                attributes: ['param_id', 'status','note', 'name', 'type', 'style', 'spell'],
+                where: {style: 'C',status:ENUM.TYPE.ENABLE},
+                order: [['type', 'asc']]
+            });
+            
+            //获取广播地址
+            let broadcast = await tools.getBroadcast()
+
+            //查看客户端配置
+            let clientConfig = await this.findClientConfigGet(req)
+
+            return Result.Ok('成功！',{mac_list:mac_list.content,theme_list,broadcast,clientConfig:clientConfig.content})
         } catch (error) {
             logger.error('失败！', error);
             return Result.Error('失败', error.message);

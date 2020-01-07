@@ -14,7 +14,7 @@ module.exports = function (sequelize) {
 
     const print_entities = function (po) {
         po.forEach((entity) => {
-            logger.info(`loading [${entity}]`);
+            logger.info(`loading [${entity.name}]`);
         });
     };
 

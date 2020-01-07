@@ -4,7 +4,7 @@
 "use strict";
 
 global.wsObj = {}; //存放ws连接
-let WebSocketServer = require('ws').Server,
+const WebSocketServer = require('ws').Server,
     _ = require('lodash'),
     ENUM = global.config.ENUM,
     wss = new WebSocketServer({ port: global.config.ENUM.DEFAULT_PORT.WS_PORT }),
@@ -80,7 +80,7 @@ wss.on('connection', function (ws) {
                 let cmd_spell = await contron.findCmdSpellGet();
 
                 let spell_list = cmd_spell.concat(message.res);
-                console.log(spell_list);
+               /*  console.log(spell_list); */
 
                 //获取当前ws对应的udp传输ip 及端口
                 let new_req = { "query": { "ip": ip, "type": "ws" } };
