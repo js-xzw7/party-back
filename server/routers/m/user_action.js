@@ -55,7 +55,7 @@ module.exports = function ( dbo ) {
                 msg += '用户注册成功！'
             }else{
                 //检查用户是否有效
-                let user_info = await User.findById(params.user_id);
+                let user_info = await User.findByPk(params.user_id);
 
                 if(!user_info){
                     return Result.Error('用户不存在，更新失败！');

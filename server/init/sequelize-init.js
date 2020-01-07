@@ -24,7 +24,7 @@ global.sequelize = global.sequelize = function () {
 
                 //根据主键查找是否存在
                 let primaryKey = Entity.primaryKeyAttribute;
-                return Entity.findById(entityRequest[primaryKey])
+                return Entity.findByPk(entityRequest[primaryKey])
                     .then(function (entity) {
                         if (entity) { //to update
                             return entity.update(entityRequest, options);
@@ -52,7 +52,7 @@ global.sequelize = global.sequelize = function () {
                 }
                 //根据主键查找是否存在
                 let primaryKey = Entity.primaryKeyAttribute;
-                return Entity.findById(entityRequest[primaryKey])
+                return Entity.findByPk(entityRequest[primaryKey])
                     .then(function (entity) {
                         if (entity) { //to update
                             return entity.update(entityRequest, options);

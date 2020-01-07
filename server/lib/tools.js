@@ -47,6 +47,9 @@ class tools {
                 if (alias.family === 'IPv4' && alias.address !== '127.0.0.1' && !alias.internal) {
                     return calculateBroadcast(alias)
                 };
+
+                //无网络下返回127.0.0.1;
+                if(alias.address == '127.0.0.1') return alias.address;
             };
         };
 

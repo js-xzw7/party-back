@@ -154,9 +154,6 @@ module.exports = function (dbo) {
     this.deleteCfigPost = async function (req) {
         //b/config/deleteCfig  --post
         try {
-            let session = req.session,
-                my_user_id = _.get(session, 'active_user.user_id'),
-                my_dep_id = _.get(session, 'active_user.dep_id');
 
             //获取参数
             let params = req.body,
@@ -202,11 +199,6 @@ module.exports = function (dbo) {
             let map_info = await TBMap.findOne({ where: { udp_mac } });
 
             if (!map_info) {
-                //添加映射
-                /* await TBMap.create({
-                    map_id:udp_mac, udp_mac:udp_mac,
-                    status: ENUM.TYPE.APPLY
-                }); */
 
                 let sql = `
                     insert into tb_address_map (map_id,create_date,optr_date,status,udp_mac) values (:map_id,now(),now(),:status,:udp_mac)
@@ -225,7 +217,7 @@ module.exports = function (dbo) {
                     return Result.Error('请完善参数，更新失败！');
                 }
                 
-                //删除ip原映射记录
+                //清除ip原映射记录
                 /* await TBMap.update({ws_ip:null},{where:{ws_ip}}) */
 
                 //更新映射
@@ -257,11 +249,10 @@ module.exports = function (dbo) {
             let TBMap = po.import(dbo, 'tb_address_map');
 
             let map_list = await TBMap.findAll({
-                /* attributes: {
-                    exclude: ENUM.DEFAULT_PARAMS_ARRAY
-                } */
-                attributes: ["map_id", "status", "note", "ctrl_status", "dep_id", "udp_mac", "udp_ip", "udp_port", "ws_mac", "ws_ip", "ws_port"]
-            }, {
+                attributes: [
+                    "map_id", "status", "note", "ctrl_status", "dep_id",
+                     "udp_mac", "udp_ip", "udp_port", "ws_mac", "ws_ip", "ws_port"
+                ]}, {
                 where: {
                     status: {
                         [dbo.Op.not]: ENUM.TYPE.DISABLE
@@ -300,9 +291,6 @@ module.exports = function (dbo) {
 
             let map_info = await TBMap.findOne({
                 attributes: ["map_id", "status", "udp_mac", "udp_ip", "udp_port", "ws_mac", "ws_ip", "ws_port"],
-                /*  attributes: {
-                     exclude: ENUM.DEFAULT_PARAMS_ARRAY
-                 }, */
                 where: whereObj
             });
 
@@ -334,10 +322,10 @@ module.exports = function (dbo) {
             let TBMap = po.import(dbo, 'tb_address_map');
 
             let map_info = await TBMap.findOne({
-                /* attributes: {
-                    exclude: ENUM.DEFAULT_PARAMS_ARRAY
-                }, */
-                attributes:["map_id", "status", "note", "ctrl_status", "dep_id", "udp_mac", "udp_ip", "udp_port", "ws_mac", "ws_ip", "ws_port"],
+                attributes:[
+                    "map_id", "status", "note", "ctrl_status", "dep_id", "udp_mac", 
+                    "udp_ip", "udp_port", "ws_mac", "ws_ip", "ws_port"
+                ],
                 where: { udp_mac }
             });
 
@@ -404,16 +392,6 @@ module.exports = function (dbo) {
                 return Result.Error('请完善参数！');
             };
 
-            /* //加载模型
-            let [TBMap,TBCfig,TBParams] = po.import(dbo, ['tb_address_map','tb_client_config','tb_params']);
-
-            //更新映射关系
-            await TBMap.update({
-                udp_ip,ws_ip,
-                status:ENUM.TYPE.ENABLE
-            },{
-                where:{udp_mac}
-            }) */
             let update_sql = `
                 update tb_address_map set udp_ip = :udp_ip,
                     ws_ip = :ws_ip,status = 'ENABLE' 
@@ -503,15 +481,6 @@ module.exports = function (dbo) {
                  where:{ip:ip,status:ENUM.TYPE.ENABLE}
              })
 
-            /* //查询映射问题
-            req.query.type = 'ws';
-            req.query.ip = req.clientIp;
-            let map_info = await this.findByIpMapGet(req);
-
-            //查询客户端显示问题
-            let menu_info = await this.findByIpCfigGet(req); */
-
-            /* let data = map_info.content && menu_info.content ? _.merge(map_info.content, menu_info.content) : {}; */
             let data = map_info && menu_info ? _.merge(map_info, menu_info) : {};
             return Result.Ok('成功！', data);
         } catch (error) {

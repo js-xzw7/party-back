@@ -134,7 +134,9 @@ module.exports = function (dbo) {
             });
 
             if (params_list.length <= 0) {
-                return Result.Error('暂无菜单数据！');
+                let themen = ``;
+                if(note) themen = note === 'S' ? `文章`:`视频`;
+                return Result.Error(`暂无${themen}主题数据！`);
             };
 
             return Result.Ok('成功！', params_list);

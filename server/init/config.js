@@ -49,7 +49,8 @@ const configure = function () {
                     max: 5,
                     min: 0,
                     idle: 10000
-                }
+                },
+                operatorsAliases: false //去除弃用警告信息
             },
             syncDB: false
         },

@@ -147,7 +147,7 @@ module.exports = function (dbo) {
             //加载模型
             let TBUser = po.import(dbo, 'tb_user');
 
-            let user_info = await TBUser.findById(user_id)
+            let user_info = await TBUser.findByPk(user_id)
 
             if(!user_info) return Result.Error('用户不存在')
 

@@ -93,7 +93,7 @@ module.exports = function (dbo) {
             } else {
                 /* 更新文献 */
                 //判断文献是否存在
-                let meeting_info = await TBMeeting.findById(meeting_id);
+                let meeting_info = await TBMeeting.findByPk(meeting_id);
 
                 if (!meeting_info) {
                     return Result.Error('文献不存在，更新失败！');
@@ -184,7 +184,7 @@ module.exports = function (dbo) {
             //加载数据模型
             let [TBMeeting] = po.import(dbo, ['tb_meeting']);
 
-            let meeting_info = await TBMeeting.findById(meeting_id);
+            let meeting_info = await TBMeeting.findByPk(meeting_id);
 
             if(!meeting_info){
                 return Result.Error('文件不存在！删除失败！');

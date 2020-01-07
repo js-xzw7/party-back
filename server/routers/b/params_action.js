@@ -123,7 +123,7 @@ module.exports = function (dbo) {
             //加载数据模型
             let [TBParams, TBMeeting, TBCfig] = po.import(dbo, ['tb_params', 'tb_meeting', 'tb_client_config']);
 
-            let param_info = await TBParams.findById(param_id);
+            let param_info = await TBParams.findByPk(param_id);
 
             if (!param_info) {
                 return Result.Error('菜单不存在！');
@@ -183,7 +183,7 @@ module.exports = function (dbo) {
             //加载数据模型
             let [TBParams, TBMeeting, TBCfig] = po.import(dbo, ['tb_params', 'tb_meeting', 'tb_client_config']);
 
-            let param_info = await TBParams.findById(param_id);
+            let param_info = await TBParams.findByPk(param_id);
 
             if (!param_info) {
                 return Result.Error('菜单不存在！');

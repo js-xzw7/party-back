@@ -125,7 +125,7 @@ module.exports = function ( dbo ) {
             let TBMeeting = po.import(dbo,'tb_meeting');
 
             //根据id查询文献内容
-            let meeting_info = await TBMeeting.findById(meeting_id);
+            let meeting_info = await TBMeeting.findByPk(meeting_id);
 
             if(!meeting_info){
                 return Result.Error('无效文献id!');
