@@ -135,7 +135,7 @@ module.exports = function (dbo) {
 
             if (params_list.length <= 0) {
                 let themen = ``;
-                if(note) themen = note === 'S' ? `文章`:`视频`;
+                if(note) themen = note === 'W' ? `文章`:`视频`;
                 return Result.Error(`暂无${themen}主题数据！`);
             };
 
