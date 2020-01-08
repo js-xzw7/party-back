@@ -79,7 +79,8 @@ module.exports = function () {
                 //截取词条内容
                 let str = message.substring(20, message.length - 4);
                 //转换字符串
-                let spell = new Buffer(str, 'hex').toString('utf8');
+               /*  let spell = new Buffer(str, 'hex').toString('utf8'); */
+               let spell = Buffer.from(str,'hex').toString('utf8');
                 console.log(spell);
                 //处理识别文字
                 let data = await contron.disposePost(spell);
