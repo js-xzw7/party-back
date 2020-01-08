@@ -12,6 +12,27 @@ module.exports = function () {
         cmc = new (require('../routers/m/cmc_action')),
         tools = new (require('../lib/tools'));
 
+    /* //检测当前ip是否配置映射方法
+    const examine = async (ip)=> {
+
+        //根据请求ip查询对应的ws_ip
+        let req = { "query": { "ip": ip, "type": "udp" } };
+        let map_info = await cfig.findByIpMapGet(req);
+
+        if (!map_info.content) {
+            logger.error(`udp:${ip}未配置ws映射关系！`);
+            return 'map';
+        }
+
+        //判断本ip是否已建立websocket连接
+        if (!global.wsObj[map_info.content.ws_ip]) {
+           logger.error(`${map_info.content.ws_ip}未建立websoket连接，发送数据失败！`);
+           return 'websocket';
+       }
+
+       return map_info.content;
+   } */
+
     //建立udp服务器
     let server = dgram.createSocket('udp4');
 
@@ -57,8 +78,8 @@ module.exports = function () {
                         logger.error(`${mac_map.content.ws_ip}未建立websoket连接，获取词条信息失败！`);
                         return;
                     }
-                    let data = {type:7,res:'获取词条！'}
-                    global.wsObj[mac_map.content.ws_ip].send(JSON.stringify(data));
+                    let initData = {type:7,res:'获取词条！'}
+                    global.wsObj[mac_map.content.ws_ip].send(JSON.stringify(initData));
                 }
 
                 break;
@@ -83,17 +104,17 @@ module.exports = function () {
                let spell = Buffer.from(str,'hex').toString('utf8');
                 console.log(spell);
                 //处理识别文字
-                let data = await contron.disposePost(spell);
+                let spellData = await contron.disposePost(spell);
 
                 //如果没有找到相应文字通知该客户端更新数据
-                if (data.res.ret !== 'OK') {
+                if (spellData.res.ret !== 'OK') {
                     logger.error(`没有匹配到“${spell}”字符！`);
                     return;
                 }
 
                 //根据请求ip查询对应的ws_ip
-                let req = { "query": { "ip": ip, "type": "udp" } };
-                let map_info = await cfig.findByIpMapGet(req);
+                let udp_req = { "query": { "ip": ip, "type": "udp" } };
+                let map_info = await cfig.findByIpMapGet(udp_req);
 
                 if (!map_info.content) {
                     logger.error(`udp:${ip}未配置ws映射关系！`);
@@ -105,8 +126,28 @@ module.exports = function () {
                     return;
                 }
 
-                /* data = JSON.stringify(data); */
-                global.wsObj[map_info.content.ws_ip].send(JSON.stringify(data));
+                global.wsObj[map_info.content.ws_ip].send(JSON.stringify(spellData));
+                break;
+            case 7:
+                //人脸识别
+                let number = message.substring(8,10);
+                console.log('人脸检测:'+ number);
+                
+                //转换为16进制数据
+                number = parseInt(number,16);
+
+                //人脸识别回复
+                let receiveFace = cmc.receiveFace();
+                server.send(receiveFace, port, ip);
+
+                //通知客户端
+                if (!global.wsObj[ip]) {
+                    logger.error(`${ip}未建立websoket连接，发送数据失败！`);
+                    return;
+                } 
+
+                let faceData = {type:8,res:number}
+                global.wsObj[ip].send(JSON.stringify(faceData));
                 break;
         }
     })
@@ -117,5 +158,7 @@ module.exports = function () {
 
     server.bind(ENUM.DEFAULT_PORT.UDP_PORT);
     global.udpServer = server;
+
+    
 }();
 

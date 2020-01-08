@@ -128,6 +128,13 @@ class cmc {
 
         return Buffer.from(this.PHead + comType + id + this.PTai, 'hex');
     };
+
+    //08.通知已收到人脸识别信息
+    receiveFace() {
+        //处理命令类型 0008
+        let comType = '0008';
+        return Buffer.from(this.PHead + comType + this.PTai, 'hex');
+    };
 }
 
 module.exports = cmc
