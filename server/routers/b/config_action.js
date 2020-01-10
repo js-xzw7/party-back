@@ -188,6 +188,9 @@ module.exports = function (dbo) {
             let params = req.body,
                 { udp_mac, udp_ip, ws_ip } = params;
 
+                //设置默认语音识别模块ip
+                udp_ip = udp_ip || ENUM.VOICE_IP;
+
             if (!udp_mac) {
                 return Result.Error('缺少参数udp_mac!');
             };
@@ -199,15 +202,18 @@ module.exports = function (dbo) {
             let map_info = await TBMap.findOne({ where: { udp_mac } });
 
             if (!map_info) {
-
+                //删除所有映射，因部署为cs架构，所以要确保只存在一条映射记录
+                await TBMap.destroy({where: {}});
+                //新增映射
                 let sql = `
-                    insert into tb_address_map (map_id,create_date,optr_date,status,udp_mac) values (:map_id,now(),now(),:status,:udp_mac)
+                    insert into tb_address_map (map_id,create_date,optr_date,status,udp_mac,udp_ip) values (:map_id,now(),now(),:status,:udp_mac,:udp_ip)
                 `
                 await dbo.query(sql,{
                     replacements: {
                         map_id:udp_mac,
                         status:ENUM.TYPE.APPLY,
-                        udp_mac:udp_mac
+                        udp_mac:udp_mac,
+                        udp_ip:udp_ip
                     },
                     type: dbo.QueryTypes.SELECT,
                 });
@@ -385,8 +391,11 @@ module.exports = function (dbo) {
             let params = req.body,
                 { udp_mac, udp_ip, menu, ws_ip } = params;
 
+            //设置默认语音识别模块ip
+            udp_ip = udp_ip || ENUM.VOICE_IP;
+
             //设置默认客户端ip
-            ws_ip = ws_ip || req.clientIp
+            ws_ip = ws_ip || await tools.getIp();
 
             if (!udp_mac || !udp_ip || !menu) {
                 return Result.Error('请完善参数！');
@@ -413,11 +422,11 @@ module.exports = function (dbo) {
                 return show_menu
             } 
            
-            //广播通知下位机修改ip
+           /*  //广播通知下位机修改ip
             let buf = await cmc.initReply(udp_mac, udp_ip);
             //获得广播地址
             let broadcast_ip = await tools.getBroadcast();
-            global.udpServer.send(buf, ENUM.DEFAULT_PORT.BRC_PROT, broadcast_ip)
+            global.udpServer.send(buf, ENUM.DEFAULT_PORT.BRC_PROT, broadcast_ip) */
 
             return Result.Ok('成功！');
         } catch (error) {

@@ -166,13 +166,14 @@ const configure = function () {
                 WS_PORT:8002,//websoket端口
                 BRC_PROT:6001//广播端口
             },
-            FILE_PARAMS:{
+            VOICE_IP:'192.168.1.100',  //默认语音识别下位ip
+            /* FILE_PARAMS:{
                 FILE_PATH:'/images/',//图片存放目录
                 AUDIO_PATH:'/audio',//音频存放目录
                 FILE_IMG:'DEFAULT_FILE.png',//默认文件封面
                 USER_IMG:'DEFAULT_AVATAR.png'//默认用户头像
                 
-            }
+            } */
         },
 
         // 微信跳转页
