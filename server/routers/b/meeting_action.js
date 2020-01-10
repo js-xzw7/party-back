@@ -171,11 +171,7 @@ module.exports = function (dbo) {
     this.deleteMeetingPost = async (req) => {
         // b/meeting/deleteMeeting   --post
         let myRes = {};
-        try {/* 
-            let session = req.session,
-                my_user_id = _.get(session, 'active_user.user_id'),
-                my_dep_id = _.get(session, 'active_user.dep_id'),
-                { updatedBy, createdBy } = req.default_params; */
+        try {
 
             //获取数据对象
             let params = req.body,
@@ -194,10 +190,10 @@ module.exports = function (dbo) {
             await TBMeeting.destroy({ where: { meeting_id }});
 
             //删除图片
-            await tools.deleteFile(meeting_info.img_url);
-
-            //删除tts语音文件
-            /* await tools.deleteFile(meeting_info.audio_url); */
+            await tools.deleteFile(meeting_info.img_url)
+            //删除视频
+            if(meeting_info.note === `S`) 
+                await tools.deleteFile(meeting_info.audio_url)
 
             return Result.Ok('删除成功！', { meeting_id });
         } catch (e) {

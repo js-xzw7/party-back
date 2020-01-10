@@ -83,7 +83,7 @@ module.exports = function (dbo) {
     this.findAllCfigGet = async function (req) {
         //b/config/findAllCfig  --get
         try {
-            let ws_ip = req.clientIp;
+            let ws_ip = await tools.getIp();
             //查询当前请求ip的客户端配置
             let sql = `
                 SELECT C.cfg_id,C.status,C.TYPE,C.ip,P.note,M.udp_ip,

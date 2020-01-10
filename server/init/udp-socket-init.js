@@ -12,27 +12,6 @@ module.exports = function () {
         cmc = new (require('../routers/m/cmc_action')),
         tools = new (require('../lib/tools'));
 
-    /* //检测当前ip是否配置映射方法
-    const examine = async (ip)=> {
-
-        //根据请求ip查询对应的ws_ip
-        let req = { "query": { "ip": ip, "type": "udp" } };
-        let map_info = await cfig.findByIpMapGet(req);
-
-        if (!map_info.content) {
-            logger.error(`udp:${ip}未配置ws映射关系！`);
-            return 'map';
-        }
-
-        //判断本ip是否已建立websocket连接
-        if (!global.wsObj[map_info.content.ws_ip]) {
-           logger.error(`${map_info.content.ws_ip}未建立websoket连接，发送数据失败！`);
-           return 'websocket';
-       }
-
-       return map_info.content;
-   } */
-
     //建立udp服务器
     let server = dgram.createSocket('udp4');
 
@@ -140,14 +119,19 @@ module.exports = function () {
                 let receiveFace = cmc.receiveFace();
                 server.send(receiveFace, port, ip);
 
+                //获取当前ip地址
+                /* 注：人脸识别程序的ip与客户端ip未绑定映射;
+                 * 客户端运行在本地，所以本地ip就是客户端ip
+                 */
+                let local = await tools.getIp();
                 //通知客户端
-                if (!global.wsObj[ip]) {
-                    logger.error(`${ip}未建立websoket连接，发送数据失败！`);
+                if (!global.wsObj[local]) {
+                    logger.error(`${local}未建立websoket连接，发送数据失败！`);
                     return;
                 } 
 
                 let faceData = {type:8,res:number}
-                global.wsObj[ip].send(JSON.stringify(faceData));
+                global.wsObj[local].send(JSON.stringify(faceData));
                 break;
         }
     })
@@ -157,8 +141,6 @@ module.exports = function () {
     })
 
     server.bind(ENUM.DEFAULT_PORT.UDP_PORT);
-    global.udpServer = server;
-
-    
+    global.udpServer = server;    
 }();
 

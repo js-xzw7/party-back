@@ -8,7 +8,9 @@ const multer = require('multer'),
     upload = multer({
         dest:  '/public'
     }),
-    cors = require('cors');
+    //跨域
+    cors = require('cors'),
+    { exec } = require('child_process');
 
 // 定义参数
 const BIND_PORT = config.system.bind_port;
@@ -98,3 +100,5 @@ require('./init/udp-socket-init');
 //启动WebSocke
 require('./init/websocket-ws');
 
+//启动前端页面
+exec(`E:/work/zx/party-back/init.bat`)

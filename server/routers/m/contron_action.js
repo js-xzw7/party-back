@@ -14,8 +14,8 @@ module.exports = function (dbo) {
         Result = require('kml-express-stage-lib').Result,
         logger = global.loggers.system,
         config = global.config,
-        ENUM = config.ENUM;
-
+        ENUM = config.ENUM,
+        { exec,execFile } = require('child_process');
 
     /**
      * 01.处理语音识别的语句，进行相应业务逻辑
@@ -106,6 +106,26 @@ module.exports = function (dbo) {
             });
 
             return result;
+        } catch (e) {
+            logger.error('失败!', e);
+            return Result.Error('失败!', e.message);
+        }
+    }
+
+    /**
+     *04. 执行命令
+     */
+    this.execGet = async (req) => {
+        try {
+
+            let params = req.query,
+                {type} = params;
+
+            let aaa = exec(`D:/QQ/Bin/QQ.exe`);
+            console.log(aaa);
+            aaa.title = `打开记事本`
+            
+
         } catch (e) {
             logger.error('失败!', e);
             return Result.Error('失败!', e.message);
