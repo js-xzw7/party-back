@@ -16,7 +16,8 @@ module.exports = function (dbo) {
         config = global.config,
         ENUM = config.ENUM,
         crypto_utils = require('kml-crypto-utils'),
-        pinyin = require('pinyin');
+        pinyin = require('pinyin'),
+        tools = new (require('../../lib/tools'));
 
     /**
      * 03.添加菜单参数
@@ -187,6 +188,20 @@ module.exports = function (dbo) {
 
             if (!param_info) {
                 return Result.Error('菜单不存在！');
+            }
+
+            //获取该主题下所有文件
+            let theme_file = await TBMeeting.findAll({where:{type:param_info.type}})
+
+            //删除文件关联的所有图片及视频
+            for(let i = 0; i < theme_file.length; i++){
+                let file = theme_file[i];
+                
+                //删除图片
+                await tools.deleteFile(file.img_url)
+                //删除视频
+                if(file.note === `S`) 
+                    await tools.deleteFile(file.audio_url)
             }
 
             // 定义事务

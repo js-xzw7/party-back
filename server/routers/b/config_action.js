@@ -436,7 +436,7 @@ module.exports = function (dbo) {
     }
 
     /**
-     * 10.获取子网地址
+     * 10.获取子网地址（弃用）
      *
      * @param {Object} req - 请求参数
      * @param {Object} res - 返回参数

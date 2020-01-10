@@ -4,7 +4,7 @@
  * @module b/dep
  * @author 王维琦
  * @description
- *  部门相关操作
+ *  部门相关操作（弃用）
  */
 module.exports = function(dbo){
     //api公共模块
