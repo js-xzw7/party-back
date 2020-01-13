@@ -94,6 +94,9 @@ process.on('rejectionHandled', (e) => {
     logger.warn('rejectionHandled from process', e);
 });
 
+//启动定时任务
+require('./cron/log_file');
+
 //启动Udp socket
 require('./init/udp-socket-init');
 
