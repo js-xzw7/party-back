@@ -37,7 +37,7 @@ const loggers = function () {
             category: 'system',
             level: 'ALL'
         },
-        {
+        /* {
             type: 'file',
             filename: path.resolve(log_path, 'upload.log'),
             maxLogSize: 20480000,
@@ -68,7 +68,7 @@ const loggers = function () {
             backups: 30,
             category: 'cron',
             level: 'ALL'
-        }
+        } */
     ];
 
     if (log4js_2_x) {

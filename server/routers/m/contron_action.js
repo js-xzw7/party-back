@@ -15,7 +15,7 @@ module.exports = function (dbo) {
         logger = global.loggers.system,
         config = global.config,
         ENUM = config.ENUM,
-        { exec,execFile } = require('child_process');
+        { exec,spawn } = require('child_process');
 
     /**
      * 01.处理语音识别的语句，进行相应业务逻辑
@@ -121,11 +121,13 @@ module.exports = function (dbo) {
             let params = req.query,
                 {type} = params;
 
-            let aaa = exec(`D:/QQ/Bin/QQ.exe`);
-            console.log(aaa);
-            aaa.title = `打开记事本`
-            
-
+            if(type === '1'){
+                let obj = exec(`C:/Users/jsw7/Desktop/aaaaa.bat`);
+                console.log(obj)
+            }else{
+                exec(`taskkill /F /V /im aaaaa.bat`);
+            }
+        
         } catch (e) {
             logger.error('失败!', e);
             return Result.Error('失败!', e.message);

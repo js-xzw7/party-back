@@ -175,7 +175,7 @@ module.exports = function (dbo) {
 
             //获取参数
             let params = req.body,
-                { login_code, login_password } = params;
+                { login_code, login_password, login_old_pwd } = params;
 
             //加载模型
             let TBUser = po.import(dbo, 'tb_user');
@@ -185,6 +185,15 @@ module.exports = function (dbo) {
             if (!admin_info) {
                 return Result.Error('管理员不存在！');
             };
+            
+            //判断旧密码是否一致
+            //md5 加密
+            login_old_pwd = crypto_utils.MD5(login_old_pwd + '@' + login_code);
+            if(admin_info.login_password !== login_old_pwd){
+                return Result.Error('旧密码不一致！');
+            }
+
+            
 
             //md5 加密
             login_password = crypto_utils.MD5(login_password + '@' + login_code);
@@ -224,7 +233,7 @@ module.exports = function (dbo) {
             let admin_info = await TBUser.findOne({ where: { login_code } });
 
             if (!admin_info) {
-                return Result.Error('管理员不存在！');
+                return Result.Error('admin管理员不存在！');
             };
 
             //md5 加密
