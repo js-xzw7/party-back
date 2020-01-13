@@ -175,7 +175,7 @@ module.exports = function (dbo) {
 
             //获取参数
             let params = req.body,
-                { login_code, login_password, login_old_pwd } = params;
+                { login_code, login_password, login_oldpwd } = params;
 
             //加载模型
             let TBUser = po.import(dbo, 'tb_user');
@@ -188,12 +188,10 @@ module.exports = function (dbo) {
             
             //判断旧密码是否一致
             //md5 加密
-            login_old_pwd = crypto_utils.MD5(login_old_pwd + '@' + login_code);
-            if(admin_info.login_password !== login_old_pwd){
-                return Result.Error('旧密码不一致！');
+            login_oldpwd = crypto_utils.MD5(login_oldpwd + '@' + login_code);
+            if(admin_info.login_password !== login_oldpwd){
+                return Result.Error('旧密码有误！');
             }
-
-            
 
             //md5 加密
             login_password = crypto_utils.MD5(login_password + '@' + login_code);
