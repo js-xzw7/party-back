@@ -38,8 +38,6 @@ module.exports = function (){
                 
         });
 
-        //清空pm2日志文件
-        exec(`pm2 flush`)
     }); 
 }();
 
