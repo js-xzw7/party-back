@@ -1,5 +1,6 @@
 "use strict";
-const start_time = Date.now();
+const start_time = Date.now(),
+    path = require('path');
 
 const config = require('./init/config'),
     MpApiAction = require('./action/mpapi-action');
@@ -103,5 +104,5 @@ require('./init/udp-socket-init');
 //启动WebSocke
 require('./init/websocket-ws');
 
-//启动前端页面
-exec(`E:/work/zx/party-back/init.bat`)
+//启动前端页面 
+exec(path.resolve(__dirname,'../init.bat'))

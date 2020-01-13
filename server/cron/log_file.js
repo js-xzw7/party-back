@@ -19,14 +19,15 @@
 "use strict";
 const schedule = require('node-schedule'),
     fs = require("fs"),
-    path = require("path");
+    path = require("path"),
+    exec = require('child_process').exec;
 
 module.exports = function (){
     schedule.scheduleJob('0 0 0 1 * *', function(){
         console.log(' 启动清空日志定时任务:' + new Date());
         let url = path.resolve(__dirname,'../../logs')
         //清空日志文件
-        let files = fs.readdirSync(url);   //返回文件和子目录的数组
+        let files = fs.readdirSync(url);   //返回文件和子目录的数组md
         
         files.forEach(function(file,index){
             var curPath = path.join(url,file);
@@ -36,6 +37,9 @@ module.exports = function (){
             } 
                 
         });
+
+        //清空pm2日志文件
+        exec(`pm2 flush`)
     }); 
 }();
 
