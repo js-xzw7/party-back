@@ -77,9 +77,12 @@ wss.on('connection', function (ws) {
                 /* 更新词条 */
                 
                 //获取命令词条
-                let cmd_spell = await contron.findCmdSpellGet();
+                /* let cmd_spell = await contron.findCmdSpellGet();
 
-                let spell_list = cmd_spell.concat(message.res);
+                let spell_list = cmd_spell.concat(message.res); */
+
+                //取消命令词条下发
+                let spell_list = message.res;
 
                 //获取当前ws对应的udp传输ip 及端口
                 let new_req = { "query": { "ip": ip, "type": "ws" } };
