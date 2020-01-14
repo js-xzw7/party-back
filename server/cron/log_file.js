@@ -12,6 +12,7 @@
 │ │ │ └────────── day of month (1 - 31)
 │ │ └─────────────── hour (0 - 23)
 │ └──────────────────── minute (0 - 59)
+
 └───────────────────────── second (0 - 59, OPTIONAL)
  * 
  *
@@ -19,11 +20,10 @@
 "use strict";
 const schedule = require('node-schedule'),
     fs = require("fs"),
-    path = require("path"),
-    exec = require('child_process').exec;
+    path = require("path");
 
 module.exports = function (){
-    schedule.scheduleJob('0 0 0 1 * *', function(){
+    schedule.scheduleJob('0 0 0 * * 0', function(){
         console.log(' 启动清空日志定时任务:' + new Date());
         let url = path.resolve(__dirname,'../../logs')
         //清空日志文件

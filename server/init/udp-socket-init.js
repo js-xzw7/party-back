@@ -119,14 +119,11 @@ module.exports = function () {
                 let receiveFace = cmc.receiveFace();
                 server.send(receiveFace, port, ip);
 
-                //获取当前ip地址
-                /* 注：人脸识别程序的ip与客户端ip未绑定映射;
-                 * 客户端运行在本地，所以本地ip就是客户端ip
-                 */
-                let local = await tools.getIp();
+                /* //获取当前ip地址
+                let local = await tools.getIp(); */
                 //通知客户端
-                if (!global.wsObj[local]) {
-                    logger.error(`${local}未建立websoket连接，发送数据失败！`);
+                if (!global.wsObj[ip]) {
+                    logger.error(`${ip}未建立websoket连接，发送数据失败！`);
                     return;
                 } 
 

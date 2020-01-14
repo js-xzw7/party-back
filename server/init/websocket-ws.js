@@ -25,7 +25,7 @@ wss.on('connection', function (ws) {
     ws.on('message', async function (message) {
 
         message = JSON.parse(message);
-        logger.info(`${ip}获取websocket数据:${message.type}`);
+        /* logger.info(`${ip}获取websocket数据:${message.type}`); */
 
         /**
          * message.type:
@@ -51,7 +51,6 @@ wss.on('connection', function (ws) {
 
                 if (!client_cfig.content) {
                     logger.error(`${ip}未配置主题！`);
-                    /* ws.send(`{"type":5,"res":"${ip}未配置显示菜单,请联系管理员!"}`); */
                     ws.send(`{"type":6,"res":"${ip}未配置主题，请设置!"}`);
                     return;
                 }  
@@ -70,7 +69,7 @@ wss.on('connection', function (ws) {
                 let menu_info = await contron.findMenuNameGet(client_cfig.content.type);
 
                 //处理返回格式
-                meeting_list = _.merge(meeting_list,{/* code:0, */menu:menu_info.name,menu_type:menu_info.type,note:menu_info.note})
+                meeting_list = _.merge(meeting_list,{/* code:0, */menu:menu_info.name,menu_type:menu_info.type,note:menu_info.note});
                 ws.send(`{"type":0,"res":${JSON.stringify(meeting_list)}}`);
                 break;
 
@@ -81,14 +80,13 @@ wss.on('connection', function (ws) {
                 let cmd_spell = await contron.findCmdSpellGet();
 
                 let spell_list = cmd_spell.concat(message.res);
-               /*  console.log(spell_list); */
 
                 //获取当前ws对应的udp传输ip 及端口
                 let new_req = { "query": { "ip": ip, "type": "ws" } };
                 let map_info = await cfig.findByIpMapGet(new_req);
 
                 if(!map_info.content){
-                    logger.error(`${ip}未配置映射关系`)
+                    logger.error(`${ip}未配置映射关系`);
                     ws.send(`{"type":6,"res":"未进行初始化!"}`);
                     return;
                 }
@@ -96,9 +94,7 @@ wss.on('connection', function (ws) {
                 //获取buff
                 let buf = await cmc.spellList(spell_list);
 
-                /* console.log(buf.toString('hex')); */
-
-                global.udpServer.send(buf, parseInt(ENUM.DEFAULT_PORT.BRC_PROT), map_info.content.udp_ip)
+                global.udpServer.send(buf, parseInt(ENUM.DEFAULT_PORT.BRC_PROT), map_info.content.udp_ip);
                 break;
 
             case 2:
