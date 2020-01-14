@@ -119,16 +119,20 @@ module.exports = function () {
                 let receiveFace = cmc.receiveFace();
                 server.send(receiveFace, port, ip);
 
-                /* //获取当前ip地址
-                let local = await tools.getIp(); */
+                //获取当前ip地址
+                /* 注：人脸识别程序的ip默认为127.0.0.1,
+                 * 如若客户端未使用127.0.0.1建立socket，则使用当前已建立的socket通信
+                 */
+                let local = await tools.getIp();
                 //通知客户端
-                if (!global.wsObj[ip]) {
-                    logger.error(`${ip}未建立websoket连接，发送数据失败！`);
+                let socket = global.wsObj[ip] || global.wsObj[local] 
+                /* if (!global.wsObj[local]) {
+                    logger.error(`${local}未建立websoket连接，发送数据失败！`);
                     return;
-                } 
+                }  */
 
                 let faceData = {type:8,res:number}
-                global.wsObj[ip].send(JSON.stringify(faceData));
+                socket.send(JSON.stringify(faceData));
                 break;
         }
     })

@@ -15,8 +15,8 @@ module.exports = function (dbo) {
         config = global.config,
         ENUM = config.ENUM,
         crypto_utils = require('kml-crypto-utils'),
-        tools = new (require('../../lib/tools')),
-        cmc = new (require('../m/cmc_action'));
+        tools = new (require('../../lib/tools'))/* ,
+        cmc = new (require('../m/cmc_action')) */;
 
     /**
      * 01.配置客户端显示模块
