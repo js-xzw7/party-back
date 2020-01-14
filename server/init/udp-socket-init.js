@@ -128,7 +128,7 @@ module.exports = function () {
                 } 
 
                 let faceData = {type:8,res:number}
-                global.wsObj[local].send(JSON.stringify(faceData));
+                global.wsObj[ip].send(JSON.stringify(faceData));
                 break;
         }
     })
