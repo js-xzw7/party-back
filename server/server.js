@@ -7,7 +7,7 @@ const config = require('./init/config'),
 
 const multer = require('multer'),
     upload = multer({
-        dest:  'public'
+        dest:  '/public'
     }),
     //跨域
     cors = require('cors'),

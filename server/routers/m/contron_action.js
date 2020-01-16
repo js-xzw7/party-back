@@ -131,7 +131,7 @@ module.exports = function (dbo) {
                 let heartBeatBuffer = await cmc.heartBeat();
                 global.timer = setInterval(function(){
                     udpServer.send(heartBeatBuffer, 6003, '255.255.255.255')
-                }, 100);
+                }, 500);
 
                 //发送指令
                 exec(ENUM.CMD.SOUND_OPEN,(error, stdout, stderr) => {
