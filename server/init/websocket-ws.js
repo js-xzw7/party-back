@@ -14,6 +14,7 @@ const WebSocketServer = require('ws').Server,
     cfig = new (require('../routers/b/config_action'))(global.sequelize),
     cmc = new (require('../routers/m/cmc_action'));
 
+
 wss.on('connection', function (ws) {
 
     //以websockt中的ip地址为键，保存ws连接对象
@@ -38,6 +39,7 @@ wss.on('connection', function (ws) {
          * 6: 未完成初始化，返回初始化页面
          * 7: 下位机重启，重新获取词条请求
          * 8：人脸识别(1:已识别到人脸 0：未识别到人脸)
+         * 9：音响开启关闭通知(1：开启音响 0：关闭音响)
         */
 
         //处理前端接收的消息
@@ -104,6 +106,12 @@ wss.on('connection', function (ws) {
                 /* 心跳检测 */
                 ws.send(JSON.stringify(message));
                 break;
+
+            case 9:
+                /* 音响开启关闭通知 */
+                let sound_req = { "query": { "type": message.res.toString()} };
+                await contron.soundSwitchGet(sound_req);
+            break;
         }
     })
 

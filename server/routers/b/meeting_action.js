@@ -48,15 +48,21 @@ module.exports = function (dbo) {
                 return Result.Error('缺少参数title!');
             };
 
-            //获取标题拼音词条
-            title = title.replace(/[“”""''‘’：:。.，]+/g, "");
-            let spell = pinyin(title, { style: pinyin.STYLE_NORMAL }).join(' ');
-
             //获取audio音频文件
             /* let audio_url = await tools.getTtsAudio(params.title,params.content); */
 
             //加载数据模型
             let [TBMeeting,TBParams] = po.import(dbo, ['tb_meeting','tb_params']);
+
+            //检测标题是否存在
+            let exists_title = await TBMeeting.findOne({where:{title:title}});
+            if(exists_title){
+                return Result.Error('已存在此标题，请更新标题！');
+            };
+
+            //获取标题拼音词条
+            title = title.replace(/[“”""''‘’：:。.，]+/g, "");
+            let spell = pinyin(title, { style: pinyin.STYLE_NORMAL }).join(' ');
 
             //检测菜单是否存在
             let menu_info = await TBParams.findOne({where:{type:params.type,style:'C'}});

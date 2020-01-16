@@ -167,6 +167,10 @@ const configure = function () {
                 BRC_PROT:6001//广播端口
             },
             VOICE_IP:'192.168.1.100',  //默认语音识别下位ip
+            CMD:{
+                SOUND_OPEN:'start "" E:/work/zx/audiorecord/audiorecord.exe -s 7001',//开启音响命令
+                SOUND_COLSE:'taskkill /f /im audiorecord.exe',//关闭命令
+            },
             /* FILE_PARAMS:{
                 FILE_PATH:'/images/',//图片存放目录
                 AUDIO_PATH:'/audio',//音频存放目录

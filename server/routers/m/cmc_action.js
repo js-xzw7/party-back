@@ -6,8 +6,7 @@
  * @description
  * 自定义协议处理
  */
-let tools = new (require('../../lib/tools')),
-    ENUM = global.config.ENUM;
+let tools = new (require('../../lib/tools'));
 class cmc {
     constructor() {
         this.PHead = '5A5A';
@@ -35,27 +34,6 @@ class cmc {
         let buf_str = head + is_update + ip + this.PTai
         let buffer = new Buffer.alloc(buf_str.length/2);
         buffer.write(buf_str, 0,buffer.length, 'hex');
-
-        /* //创建buff对象
-        let buffer_length = (head.length + is_update.length + ip.length + this.PTai.length)/2  
-        let buffer = new Buffer.alloc(buffer_length);
-
-        //偏移量
-        let offset = 0;
-        //写入协议头
-        buffer.write(head, offset, head.length / 2, 'hex');
-        offset += head.length / 2;
-
-        //写入是否更新ip标识
-        buffer.write(is_update,offset,is_update.length/2,'hex');
-        offset += is_update.length/2;
-
-        //写入ip地址
-        buffer.write(ip,offset,ip.length/2,'hex');
-        offset += ip.length/2;
-
-        //写入包尾
-        buffer.write(this.PTai,offset,this.PTai.length/2,'hex'); */
 
         return buffer;
     };
@@ -135,6 +113,53 @@ class cmc {
         let comType = '0008';
         return Buffer.from(this.PHead + comType + this.PTai, 'hex');
     };
+
+    //开启音响
+    openSound() {
+
+        let open = `290100f400011b58`
+        +`0101010101010101010101010101010101010101`
+        +`0101010101010101010101010101010101010101`
+        +`0101010101010101010101010101010101010101`
+        +`0101010101010101010101010101010101010101`
+        +`0101010101010101010101010101010101010101`
+        +`0101010101010101010101010101010101010101`
+        +`0101010101010101010101010101010101010101`
+        +`0101010101010101010101010101010101010101`
+        +`0101010101010101010101010101010101010101`
+        +`0101010101010101010101010101010101010101`
+        +`0101010101010101010101010101010101010101`
+        +`0101010101010101010101010101010101010101`
+
+        return Buffer.from(open, 'hex');;
+    };
+
+    //关闭音响
+    closeSound() {
+        
+        let close =  `290000f400011b58`
+        +`0101010101010101010101010101010101010101`
+        +`0101010101010101010101010101010101010101`
+        +`0101010101010101010101010101010101010101`
+        +`0101010101010101010101010101010101010101`
+        +`0101010101010101010101010101010101010101`
+        +`0101010101010101010101010101010101010101`
+        +`0101010101010101010101010101010101010101`
+        +`0101010101010101010101010101010101010101`
+        +`0101010101010101010101010101010101010101`
+        +`0101010101010101010101010101010101010101`
+        +`0101010101010101010101010101010101010101`
+        +`0101010101010101010101010101010101010101`
+
+        return Buffer.from(close, 'hex');
+    };
+
+    //音响心跳包
+    heartBeat(){
+
+        let hear =`FF00FE000006C0A801640000`;
+        return Buffer.from(hear, 'hex');
+    }
 }
 
 module.exports = cmc

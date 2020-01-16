@@ -15,7 +15,9 @@ module.exports = function (dbo) {
         logger = global.loggers.system,
         config = global.config,
         ENUM = config.ENUM,
-        { exec,spawn } = require('child_process');
+        exec = require('child_process').exec,
+        cmc = new (require('./cmc_action')),
+        udpServer = global.udpServer;
 
     /**
      * 01.处理语音识别的语句，进行相应业务逻辑
@@ -115,17 +117,45 @@ module.exports = function (dbo) {
     /**
      *04. 执行命令
      */
-    this.execGet = async (req) => {
+    this.soundSwitchGet = async (req) => {
         try {
-
             let params = req.query,
                 {type} = params;
 
             if(type === '1'){
-                let obj = exec(`C:/Users/jsw7/Desktop/aaaaa.bat`);
-                console.log(obj)
+                //开启音响设备
+                let openBuffer = await cmc.openSound();
+                udpServer.send(openBuffer, 6003, '255.255.255.255');
+
+                //定时发送心跳数据
+                let heartBeatBuffer = await cmc.heartBeat();
+                global.timer = setInterval(function(){
+                    udpServer.send(heartBeatBuffer, 6003, '255.255.255.255')
+                }, 100);
+
+                //发送指令
+                exec(ENUM.CMD.SOUND_OPEN,(error, stdout, stderr) => {
+                    if (error) {
+                        logger.warn(`音响关闭: ${error}`);
+                      return;
+                    }
+                });
             }else{
-                exec(`taskkill /F /V /im aaaaa.bat`);
+
+                //停止发送心跳包
+                clearInterval(global.timer);
+                
+                //关闭音响设备
+                let colseBuffer = await cmc.closeSound();
+                udpServer.send(colseBuffer, 6003, '255.255.255.255')
+
+                //发送指令
+                exec(ENUM.CMD.SOUND_COLSE,(error, stdout, stderr) => {
+                    if (error) {
+                        logger.warn(`关闭音响执行的错误: ${error}`);
+                      return;
+                    }
+                });
             }
         
         } catch (e) {

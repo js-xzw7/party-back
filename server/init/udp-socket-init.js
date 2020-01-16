@@ -133,6 +133,7 @@ module.exports = function () {
 
                 let faceData = {type:8,res:number}
                 socket.send(JSON.stringify(faceData));
+                
                 break;
         }
     })
@@ -141,7 +142,10 @@ module.exports = function () {
         logger.info(`upd server error:\n${err.stack}`)
     })
 
-    server.bind(ENUM.DEFAULT_PORT.UDP_PORT);
-    global.udpServer = server;    
+    server.bind(ENUM.DEFAULT_PORT.UDP_PORT,()=>{
+        server.setBroadcast(true);
+    });
+
+    global.udpServer = server;   
 }();
 
